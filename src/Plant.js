@@ -98,6 +98,10 @@ class Plant extends React.Component {
               ticks: {
                 fill: tickColor
               },
+              text: {
+                fontFamily: theme.typography.body1.fontFamily,
+                fontSize: theme.typography.body1.fontSize
+              }
             }}/>
           {crosshairValues.length > 0 &&
            <Crosshair values={crosshairValues}>
