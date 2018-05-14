@@ -107,13 +107,13 @@ class Plant extends React.Component {
            <Crosshair values={crosshairValues}>
              <div className="rv-crosshair__inner__content">
                <div className="rv-crosshair__item">
-                 min: {Math.round(crosshairValues[0].y * 10) / 10}
+                 min: {Math.round(crosshairValues[0].y * 1000) / 10}%
                </div>
                <div className="rv-crosshair__item">
-                 avg: {Math.round(crosshairValues[1].y * 10) / 10}
+                 avg: {Math.round(crosshairValues[1].y * 1000) / 10}%
                </div>
                <div className="rv-crosshair__item">
-                 max: {Math.round(crosshairValues[2].y * 10) / 10}
+                 max: {Math.round(crosshairValues[2].y * 1000) / 10}%
                </div>
              </div>
            </Crosshair>
