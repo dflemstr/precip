@@ -79,9 +79,7 @@ class App extends React.Component {
         </Grid>
       </main>)
     } else {
-      return (<main style={{maxWidth: '960px', margin: '24px auto'}}>
-        <LinearProgress />
-      </main>)
+      return <LinearProgress />
     }
   }
 }
