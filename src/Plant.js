@@ -51,7 +51,7 @@ class Plant extends React.Component {
   }
 
   render() {
-    const {title, subtitle, theme} = this.props;
+    const {title, subtitle, theme, ...props} = this.props;
 
     const tickColor = theme.palette.grey['500'];
     const colorBase = theme.palette.primary.light;
@@ -62,7 +62,7 @@ class Plant extends React.Component {
 
     const crosshairValues = this.state.crosshairValues;
 
-    return (<Card>
+    return (<Card {...props}>
       <CardHeader title={title} subtitle={subtitle}/>
       <CardContent>
         <XYPlot
