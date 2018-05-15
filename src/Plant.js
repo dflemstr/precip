@@ -13,6 +13,7 @@ import Switch from "@material-ui/core/Switch";
 import Typography from "@material-ui/core/Typography";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import Power from "@material-ui/icons/Power";
+import PropTypes from 'prop-types';
 
 const data1 = [
   {x: (1526318866 + 1 * 60 * 60) * 1000, y: 0.8},
@@ -153,5 +154,10 @@ class Plant extends React.Component {
     </Card>);
   }
 }
+
+Plant.propTypes = {
+  title: PropTypes.string,
+  subtitle: PropTypes.string,
+};
 
 export default withTheme()(Plant);
