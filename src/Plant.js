@@ -7,7 +7,7 @@ import CardActions from '@material-ui/core/CardActions';
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import FormGroup from "@material-ui/core/FormGroup";
 import { AreaSeries, Crosshair, XAxis, XYPlot } from 'react-vis';
-import * as chroma from "chroma-js";
+import { default as chroma } from "chroma-js";
 import "react-vis/dist/style.css";
 import Switch from "@material-ui/core/Switch";
 import Typography from "@material-ui/core/Typography";
