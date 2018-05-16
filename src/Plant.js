@@ -14,6 +14,7 @@ import Typography from '@material-ui/core/Typography'
 import CircularProgress from '@material-ui/core/CircularProgress'
 import Power from '@material-ui/icons/Power'
 import PropTypes from 'prop-types'
+import Grid from '@material-ui/core/Grid'
 
 class Plant extends React.Component {
   constructor (props) {
@@ -49,6 +50,7 @@ class Plant extends React.Component {
       colorBase,
       chroma(colorBase).brighten().brighten().hex()
     ]
+    const legendTextColor = theme.palette.common.white
 
     const crosshairValues = this.state.crosshairValues
 
@@ -65,7 +67,7 @@ class Plant extends React.Component {
         width={400}
         height={100}
         xType='time-utc'
-        yDomain={[0, 1.2]}
+        yDomain={[0, 1.5]}
         onMouseLeave={this._onMouseLeave}
         colorType='linear'
         colorDomain={[0, 1]}
@@ -110,21 +112,13 @@ class Plant extends React.Component {
         {crosshairValues.length > 0 &&
         <Crosshair values={crosshairValues}>
           <div className='rv-crosshair__inner__content'>
-            <div className='rv-crosshair__item'>
-              max: {Math.round(crosshairValues[4].y * 1000) / 10}%
-            </div>
-            <div className='rv-crosshair__item'>
-              p75: {Math.round(crosshairValues[3].y * 1000) / 10}%
-            </div>
-            <div className='rv-crosshair__item'>
-              p50: {Math.round(crosshairValues[2].y * 1000) / 10}%
-            </div>
-            <div className='rv-crosshair__item'>
-              p25: {Math.round(crosshairValues[1].y * 1000) / 10}%
-            </div>
-            <div className='rv-crosshair__item'>
-              min: {Math.round(crosshairValues[0].y * 1000) / 10}%
-            </div>
+            <Typography className='rv-crosshair__item' variant="caption" style={{color: legendTextColor}}>
+              max&#9;{Math.round(crosshairValues[4].y * 1000) / 10}%<br />
+              p75&#9;{Math.round(crosshairValues[3].y * 1000) / 10}%<br />
+              p50&#9;{Math.round(crosshairValues[2].y * 1000) / 10}%<br />
+              p25&#9;{Math.round(crosshairValues[1].y * 1000) / 10}%<br />
+              min&#9;{Math.round(crosshairValues[0].y * 1000) / 10}%
+            </Typography>
           </div>
         </Crosshair>
         }
@@ -136,28 +130,34 @@ class Plant extends React.Component {
       <CardContent>
         {plot}
 
-        <CircularProgress
-          size={20}
-          variant='static'
-          value={80.3}
-          style={{display: 'inline-box', verticalAlign: 'middle'}} />
-        <Typography component={({children, ...props}) => (<p {...props} style={{
-          display: 'inline'
-        }}>{children}</p>)}>&nbsp;80.3%&nbsp;humidity</Typography>
-
-        <CircularProgress
-          size={20}
-          variant='static'
-          value={54.3}
-          style={{display: 'inline-box', verticalAlign: 'middle', marginLeft: '8px'}} />
-        <Typography component={({children, ...props}) => (<p {...props} style={{
-          display: 'inline'
-        }}>{children}</p>)}>&nbsp;22.3°C&nbsp;ambient</Typography>
-
-        <Power style={{verticalAlign: 'middle', marginLeft: '8px'}} />
-        <Typography component={({children, ...props}) => (<p {...props} style={{
-          display: 'inline'
-        }}>{children}</p>)}>Pump running</Typography>
+        <Grid container spacing={8}>
+          <Grid item>
+            <CircularProgress
+              size={20}
+              variant='static'
+              value={80.3}
+              style={{display: 'inline-box', verticalAlign: 'middle', marginRight: '8px'}} />
+            <Typography component={({children, ...props}) => (<p {...props} style={{
+              display: 'inline'
+            }}>{children}</p>)}>80.3%&nbsp;humidity</Typography>
+          </Grid>
+          <Grid item>
+            <CircularProgress
+              size={20}
+              variant='static'
+              value={54.3}
+              style={{display: 'inline-box', verticalAlign: 'middle', marginRight: '8px'}} />
+            <Typography component={({children, ...props}) => (<p {...props} style={{
+              display: 'inline'
+            }}>{children}</p>)}>22.3°C&nbsp;ambient</Typography>
+          </Grid>
+          <Grid item>
+            <Power style={{verticalAlign: 'middle'}} />
+            <Typography component={({children, ...props}) => (<p {...props} style={{
+              display: 'inline'
+            }}>{children}</p>)}>Pump running</Typography>
+          </Grid>
+        </Grid>
       </CardContent>
       <CardActions>
         <FormGroup row>
