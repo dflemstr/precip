@@ -117,8 +117,7 @@ fn sample_module_job(
             (now.num_seconds_from_midnight() as f64 / 86400.0 * f64::consts::PI).sin();
 
         let humidity = 0.5 + 0.2 * day_night_variance + 0.3 * rand::random::<f64>();
-        let temperature =
-            18.0 + 5.0 * day_night_variance + 5.0 * rand::random::<f64>();
+        let temperature = 18.0 + 5.0 * day_night_variance + 5.0 * rand::random::<f64>();
 
         db.insert_sample(module.id, now, humidity, temperature)?;
     }
