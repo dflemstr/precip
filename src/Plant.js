@@ -47,7 +47,7 @@ class Plant extends React.Component {
     const colorBase = theme.palette.primary.light
     const colorRange = [
       colorBase,
-      chroma(colorBase).brighten().hex()
+      chroma(colorBase).brighten().brighten().hex()
     ]
 
     const crosshairValues = this.state.crosshairValues
@@ -68,26 +68,26 @@ class Plant extends React.Component {
         yDomain={[0, 1.2]}
         onMouseLeave={this._onMouseLeave}
         colorType='linear'
-        colorDomain={[0, 1, 2, 3, 4]}
+        colorDomain={[0, 1]}
         colorRange={colorRange}
         margin={{left: 0, right: 0, top: 0, bottom: 40}}>
         <AreaSeries
           data={maxs}
           curve='curveMonotoneX'
-          color={4} />
+          color={1.0} />
         <AreaSeries
           data={p75s}
           onNearestX={this._onNearestX}
           curve='curveMonotoneX'
-          color={3} />
+          color={0.75} />
         <AreaSeries
           data={p50s}
           curve='curveMonotoneX'
-          color={2} />
+          color={0.5} />
         <AreaSeries
           data={p25s}
           curve='curveMonotoneX'
-          color={1} />
+          color={0.25} />
         <AreaSeries
           data={mins}
           curve='curveMonotoneX'
