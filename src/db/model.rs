@@ -24,7 +24,6 @@ pub struct NewModule {
 }
 
 #[derive(Debug, Identifiable, Associations, Queryable)]
-#[belongs_to(Module)]
 #[table_name = "sample"]
 pub struct Sample {
     pub id: i32,
