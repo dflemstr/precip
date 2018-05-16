@@ -132,10 +132,7 @@ fn collect_stats_job(
     state_tx: futures::sync::mpsc::Sender<schema::State>,
 ) -> Result<(), failure::Error> {
     #[async]
-    for _ in every(
-        "collect stats".to_owned(),
-        time::Duration::from_secs(5 * 60),
-    ) {
+    for _ in every("collect stats".to_owned(), time::Duration::from_secs(60)) {
         let state_tx = state_tx.clone();
         let stats = db.collect_stats()?;
         let state = stats_to_state(&loaded_modules, &stats);
