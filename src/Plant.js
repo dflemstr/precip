@@ -112,7 +112,7 @@ class Plant extends React.Component {
         {crosshairValues.length > 0 &&
         <Crosshair values={crosshairValues}>
           <div className='rv-crosshair__inner__content'>
-            <Typography className='rv-crosshair__item' variant="caption" style={{color: legendTextColor}}>
+            <Typography className='rv-crosshair__item' variant='caption' style={{color: legendTextColor}}>
               max&#9;{Math.round(crosshairValues[4].y * 1000) / 10}%<br />
               p75&#9;{Math.round(crosshairValues[3].y * 1000) / 10}%<br />
               p50&#9;{Math.round(crosshairValues[2].y * 1000) / 10}%<br />
