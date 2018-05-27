@@ -67,7 +67,7 @@ class Plant extends React.Component {
         width={400}
         height={100}
         xType='time-utc'
-        yDomain={[0, 1.5]}
+        yDomain={[0, 2]}
         onMouseLeave={this._onMouseLeave}
         colorType='linear'
         colorDomain={[0, 1]}
@@ -113,11 +113,11 @@ class Plant extends React.Component {
         <Crosshair values={crosshairValues}>
           <div className='rv-crosshair__inner__content'>
             <Typography className='rv-crosshair__item' variant='caption' style={{color: legendTextColor}}>
-              max&#9;{Math.round(crosshairValues[4].y * 1000) / 10}%<br />
-              p75&#9;{Math.round(crosshairValues[3].y * 1000) / 10}%<br />
-              p50&#9;{Math.round(crosshairValues[2].y * 1000) / 10}%<br />
-              p25&#9;{Math.round(crosshairValues[1].y * 1000) / 10}%<br />
-              min&#9;{Math.round(crosshairValues[0].y * 1000) / 10}%
+              max&#9;{Math.round(crosshairValues[4].y * 1000) / 1000}<br />
+              p75&#9;{Math.round(crosshairValues[3].y * 1000) / 1000}<br />
+              p50&#9;{Math.round(crosshairValues[2].y * 1000) / 1000}<br />
+              p25&#9;{Math.round(crosshairValues[1].y * 1000) / 1000}<br />
+              min&#9;{Math.round(crosshairValues[0].y * 1000) / 1000}
             </Typography>
           </div>
         </Crosshair>
