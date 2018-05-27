@@ -9,7 +9,7 @@ SELECT
   percentile_cont(0.50)
   WITHIN GROUP (ORDER BY sample.moisture ASC)    p50_moisture,
   percentile_cont(0.75)
-  WITHIN GROUP (ORDER BY sample.moisture ASC)    p75_moisture,
+  WITHIN GROUP (ORDER BY sample.moisture ASC)    p75_moisture
 FROM generate_series(
          date_trunc('minute', now()) - (date_part('minute', now()) :: INTEGER % 5) * INTERVAL '1 minute' -
          INTERVAL '23 hours 55 minutes',
