@@ -29,7 +29,7 @@ class Plant extends React.Component {
   }
 
   _onNearestX (value, {index}) {
-    const d = this.props.historicalHumidity[index]
+    const d = this.props.historicalMoisture[index]
     const x = new Date(d.measurement_start)
     this.setState({
       ...this.state,
@@ -42,7 +42,7 @@ class Plant extends React.Component {
   }
 
   render () {
-    const {title, subtitle, theme, historicalHumidity, ...props} = this.props
+    const {title, subtitle, theme, historicalMoisture, ...props} = this.props
 
     const tickColor = theme.palette.grey['500']
     const colorBase = theme.palette.primary.light
@@ -54,7 +54,7 @@ class Plant extends React.Component {
 
     const crosshairValues = this.state.crosshairValues
 
-    const data = historicalHumidity
+    const data = historicalMoisture
     let plot = null
 
     if (data) {
@@ -139,7 +139,7 @@ class Plant extends React.Component {
               style={{display: 'inline-box', verticalAlign: 'middle', marginRight: '8px'}} />
             <Typography component={({children, ...props}) => (<p {...props} style={{
               display: 'inline'
-            }}>{children}</p>)}>80.3%&nbsp;humidity</Typography>
+            }}>{children}</p>)}>80.3%&nbsp;moisture</Typography>
           </Grid>
           <Grid item>
             <CircularProgress
@@ -173,7 +173,7 @@ class Plant extends React.Component {
 Plant.propTypes = {
   title: PropTypes.string,
   subtitle: PropTypes.string,
-  historicalHumidity: PropTypes.arrayOf(PropTypes.shape({
+  historicalMoisture: PropTypes.arrayOf(PropTypes.shape({
     measurement_start: PropTypes.string.required,
     min: PropTypes.number.required,
     max: PropTypes.number.required,

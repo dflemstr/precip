@@ -16,7 +16,7 @@ it('renders without crashing', () => {
       'name': 'Plant 2',
       'running': false,
       'force_running': false,
-      'historical_humidity': [{
+      'historical_moisture': [{
         'measurement_start': '2018-05-15T17:05:00Z',
         'min': 0.7440120858660881,
         'max': 0.8178992436390712,

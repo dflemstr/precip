@@ -71,7 +71,7 @@ class App extends React.Component {
       </main>)
     } else if (this.state.data) {
       let items = this.state.data.modules.map(module => (<Grid key={module.id} item>
-        <Plant title={module.name} historicalHumidity={module.historical_humidity} />
+        <Plant title={module.name} historicalMoisture={module.historical_moisture} />
       </Grid>))
       return (<main style={{maxWidth: '960px', margin: '24px auto'}}>
         <Grid container spacing={24}>
