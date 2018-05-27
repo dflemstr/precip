@@ -78,7 +78,6 @@ fn main() -> Result<(), failure::Error> {
 
     let i2c_dev = i2cdev::linux::LinuxI2CDevice::new("/dev/i2c-1", 0x48)?;
     let dac = ads1x15::Ads1x15::new_ads1115(i2c_dev);
-    let sampler = sync::Arc::new(sensors::Ads1x15Sampler::start(dac)?);
 
     let loaded_modules = sync::Arc::new(load_modules(&db)?);
 
@@ -89,6 +88,8 @@ fn main() -> Result<(), failure::Error> {
         .spawn(|| tokio::executor::current_thread::block_on_all(upload_states_to_s3(state_rx)))?;
 
     tokio::run(futures::future::lazy(move || {
+        let sampler = sync::Arc::new(sensors::Ads1x15Sampler::start(dac).unwrap());
+
         tokio::spawn(
             collect_stats_job(loaded_modules.clone(), db.clone(), state_tx)
                 .map_err(|e| error!("collect job failed: {}", e)),
