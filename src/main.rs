@@ -1,5 +1,6 @@
 #![feature(proc_macro, generators)]
 
+extern crate ads1x15;
 extern crate chrono;
 #[macro_use]
 extern crate diesel;
@@ -7,6 +8,7 @@ extern crate dotenv;
 extern crate env_logger;
 extern crate failure;
 extern crate futures_await as futures;
+extern crate i2cdev;
 #[macro_use]
 extern crate log;
 extern crate r2d2;
@@ -23,7 +25,6 @@ extern crate uuid;
 
 use std::collections;
 use std::env;
-use std::f64;
 use std::sync;
 use std::thread;
 use std::time;
@@ -32,27 +33,32 @@ use futures::prelude::*;
 
 pub mod db;
 pub mod schema;
+pub mod sensors;
 
 const MODULES: &'static [ModuleConfig] = &[
     ModuleConfig {
         id: 0,
         uuid: "19f513bc-9b69-4284-9811-c0c457d21555",
         name: "Plant 1",
+        moisture_channel: ads1x15::Channel::A0,
     },
     ModuleConfig {
         id: 0,
         uuid: "71f3abbf-eda2-4b1f-a9a2-8af7f290e0a6",
         name: "Plant 2",
+        moisture_channel: ads1x15::Channel::A1,
     },
     ModuleConfig {
         id: 0,
         uuid: "107ddad5-9274-458c-970e-1f6efefa9148",
         name: "Plant 3",
+        moisture_channel: ads1x15::Channel::A2,
     },
     ModuleConfig {
         id: 0,
         uuid: "d4b61675-bfb1-4828-8a08-b99d32eb5e51",
         name: "Plant 4",
+        moisture_channel: ads1x15::Channel::A3,
     },
 ];
 
@@ -60,6 +66,7 @@ struct ModuleConfig {
     id: i32,
     uuid: &'static str,
     name: &'static str,
+    moisture_channel: ads1x15::Channel,
 }
 
 fn main() -> Result<(), failure::Error> {
@@ -68,6 +75,11 @@ fn main() -> Result<(), failure::Error> {
 
     let database_url = env::var("DATABASE_URL")?;
     let db = sync::Arc::new(db::Db::connect(&database_url)?);
+
+    let i2c_dev = i2cdev::linux::LinuxI2CDevice::new("/dev/i2c-1", 0x48)?;
+    let dac = ads1x15::Ads1x15::new_ads1115(i2c_dev);
+    let sampler = sync::Arc::new(sensors::Ads1x15Sampler::start(dac)?);
+
     let loaded_modules = sync::Arc::new(load_modules(&db)?);
 
     let (state_tx, state_rx) = futures::sync::mpsc::channel(0);
@@ -84,7 +96,7 @@ fn main() -> Result<(), failure::Error> {
 
         for module in &*loaded_modules {
             tokio::spawn(
-                sample_module_job(module.clone(), db.clone())
+                sample_module_job(module.clone(), sampler.clone(), db.clone())
                     .map_err(|e| error!("sampling module failed: {}", e)),
             );
         }
@@ -102,24 +114,17 @@ fn main() -> Result<(), failure::Error> {
 #[async]
 fn sample_module_job(
     module: sync::Arc<ModuleConfig>,
+    sampler: sync::Arc<sensors::Ads1x15Sampler>,
     db: sync::Arc<db::Db>,
 ) -> Result<(), failure::Error> {
-    use chrono::Timelike;
-
     #[async]
     for _ in every(
         format!("sample {}", module.uuid),
         time::Duration::from_secs(1),
     ) {
         let now = chrono::Utc::now();
-
-        let day_night_variance =
-            (now.num_seconds_from_midnight() as f64 / 86400.0 * f64::consts::PI).sin();
-
-        let humidity = 0.5 + 0.2 * day_night_variance + 0.3 * rand::random::<f64>();
-        let temperature = 18.0 + 5.0 * day_night_variance + 5.0 * rand::random::<f64>();
-
-        db.insert_sample(module.id, now, humidity, temperature)?;
+        let moisture = await!(sampler.sample(module.moisture_channel))? as f64;
+        db.insert_sample(module.id, now, moisture)?;
     }
 
     Ok(())
@@ -201,29 +206,20 @@ where
                 name: module.name.to_owned(),
                 running: false,
                 force_running: false,
-                historical_humidity: Vec::new(),
-                historical_temperature: Vec::new(),
+                historical_moisture: Vec::new(),
             },
         );
     }
 
     for stat in stats {
         if let Some(module) = modules.get_mut(&stat.module_id) {
-            module.historical_humidity.push(schema::Sample {
+            module.historical_moisture.push(schema::Sample {
                 measurement_start: stat.slice,
-                min: stat.min_humidity,
-                max: stat.max_humidity,
-                p25: stat.p25_humidity,
-                p50: stat.p50_humidity,
-                p75: stat.p75_humidity,
-            });
-            module.historical_temperature.push(schema::Sample {
-                measurement_start: stat.slice,
-                min: stat.min_temperature,
-                max: stat.max_temperature,
-                p25: stat.p25_temperature,
-                p50: stat.p50_temperature,
-                p75: stat.p75_temperature,
+                min: stat.min_moisture,
+                max: stat.max_moisture,
+                p25: stat.p25_moisture,
+                p50: stat.p50_moisture,
+                p75: stat.p75_moisture,
             });
         }
     }

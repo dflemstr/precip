@@ -29,8 +29,7 @@ pub struct Sample {
     pub id: i32,
     pub created: chrono::DateTime<chrono::Utc>,
     pub module_id: i32,
-    pub humidity: f64,
-    pub temperature: f64,
+    pub moisture: f64,
 }
 
 #[derive(Debug, Insertable, AsChangeset)]
@@ -38,8 +37,7 @@ pub struct Sample {
 pub struct NewSample {
     pub created: chrono::DateTime<chrono::Utc>,
     pub module_id: i32,
-    pub humidity: f64,
-    pub temperature: f64,
+    pub moisture: f64,
 }
 
 #[derive(Debug, QueryableByName)]
@@ -49,23 +47,13 @@ pub struct Stats {
     #[sql_type = "Timestamptz"]
     pub slice: chrono::DateTime<chrono::Utc>,
     #[sql_type = "Float8"]
-    pub min_humidity: f64,
+    pub min_moisture: f64,
     #[sql_type = "Float8"]
-    pub max_humidity: f64,
+    pub max_moisture: f64,
     #[sql_type = "Float8"]
-    pub p25_humidity: f64,
+    pub p25_moisture: f64,
     #[sql_type = "Float8"]
-    pub p50_humidity: f64,
+    pub p50_moisture: f64,
     #[sql_type = "Float8"]
-    pub p75_humidity: f64,
-    #[sql_type = "Float8"]
-    pub min_temperature: f64,
-    #[sql_type = "Float8"]
-    pub max_temperature: f64,
-    #[sql_type = "Float8"]
-    pub p25_temperature: f64,
-    #[sql_type = "Float8"]
-    pub p50_temperature: f64,
-    #[sql_type = "Float8"]
-    pub p75_temperature: f64,
+    pub p75_moisture: f64,
 }

@@ -11,8 +11,7 @@ table! {
         id -> Int4,
         created -> Timestamptz,
         module_id -> Int4,
-        humidity -> Float8,
-        temperature -> Float8,
+        moisture -> Float8,
     }
 }
 

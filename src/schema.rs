@@ -11,8 +11,7 @@ pub struct Module {
     pub name: String,
     pub running: bool,
     pub force_running: bool,
-    pub historical_humidity: Vec<Sample<f64>>,
-    pub historical_temperature: Vec<Sample<f64>>,
+    pub historical_moisture: Vec<Sample<f64>>,
 }
 
 #[derive(Debug, Serialize)]

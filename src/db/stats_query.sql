@@ -1,24 +1,15 @@
 SELECT
   sample.module_id,
   slice,
-  -- humidity
-  min(sample.humidity)                           min_humidity,
-  max(sample.humidity)                           max_humidity,
+  -- moisture
+  min(sample.moisture)                           min_moisture,
+  max(sample.moisture)                           max_moisture,
   percentile_cont(0.25)
-  WITHIN GROUP (ORDER BY sample.humidity ASC)    p25_humidity,
+  WITHIN GROUP (ORDER BY sample.moisture ASC)    p25_moisture,
   percentile_cont(0.50)
-  WITHIN GROUP (ORDER BY sample.humidity ASC)    p50_humidity,
+  WITHIN GROUP (ORDER BY sample.moisture ASC)    p50_moisture,
   percentile_cont(0.75)
-  WITHIN GROUP (ORDER BY sample.humidity ASC)    p75_humidity,
-  -- temperature
-  min(sample.temperature)                        min_temperature,
-  max(sample.temperature)                        max_temperature,
-  percentile_cont(0.25)
-  WITHIN GROUP (ORDER BY sample.temperature ASC) p25_temperature,
-  percentile_cont(0.50)
-  WITHIN GROUP (ORDER BY sample.temperature ASC) p50_temperature,
-  percentile_cont(0.75)
-  WITHIN GROUP (ORDER BY sample.temperature ASC) p75_temperature
+  WITHIN GROUP (ORDER BY sample.moisture ASC)    p75_moisture,
 FROM generate_series(
          date_trunc('minute', now()) - (date_part('minute', now()) :: INTEGER % 5) * INTERVAL '1 minute' -
          INTERVAL '23 hours 55 minutes',
