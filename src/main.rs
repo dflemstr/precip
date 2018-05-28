@@ -124,7 +124,8 @@ fn sample_module_job(
         time::Duration::from_secs(1),
     ) {
         let now = chrono::Utc::now();
-        let moisture = await!(sampler.sample(module.moisture_channel))? as f64;
+        // TODO(dflemstr): implement proper scale for moisture (maybe in percent)
+        let moisture = 3.3 - await!(sampler.sample(module.moisture_channel))? as f64;
         db.insert_sample(module.id, now, moisture)?;
     }
 
