@@ -25,8 +25,8 @@ class Plant extends React.Component {
   }
 
   _onNearestX (value, {index}) {
-    const d = this.props.historicalMoisture[index]
-    const x = new Date(d.measurement_start)
+    const d = this.props.module.historicalMoisture[index]
+    const x = new Date(d.measurementStart)
     this.setState({
       ...this.state,
       crosshairValues: [{x, y: d.min}, {x, y: d.p25}, {x, y: d.p50}, {x, y: d.p75}, {x, y: d.max}]
@@ -38,7 +38,7 @@ class Plant extends React.Component {
   }
 
   render () {
-    const {title, subtitle, theme, module: {historicalMoisture}, ...props} = this.props
+    const {title, subtitle, theme, module: {historicalMoisture, minMoisture, maxMoisture, lastMoisture}, ...props} = this.props
 
     const tickColor = theme.palette.grey['500']
     const colorBase = theme.palette.primary.light
@@ -50,10 +50,12 @@ class Plant extends React.Component {
 
     const crosshairValues = this.state.crosshairValues
 
-    const data = historicalMoisture
+    let moistureRatio = lastMoisture ? (lastMoisture - minMoisture) / (maxMoisture - minMoisture) : null
+
     let plot = null
 
-    if (data) {
+    if (historicalMoisture) {
+      const data = historicalMoisture
       const mins = data.map(d => ({x: new Date(d.measurementStart), y: d.min}))
       const p25s = data.map(d => ({x: new Date(d.measurementStart), y: d.p25}))
       const p50s = data.map(d => ({x: new Date(d.measurementStart), y: d.p50}))
@@ -127,16 +129,16 @@ class Plant extends React.Component {
         {plot}
 
         <Grid container spacing={8}>
-          <Grid item>
+          {moistureRatio && <Grid item>
             <CircularProgress
               size={20}
               variant='static'
-              value={80.3}
+              value={moistureRatio * 100}
               style={{display: 'inline-box', verticalAlign: 'middle', marginRight: '8px'}} />
             <Typography component={({children, ...props}) => (<p {...props} style={{
               display: 'inline'
-            }}>{children}</p>)}>80.3%&nbsp;moisture</Typography>
-          </Grid>
+            }}>{children}</p>)}>{Math.round(moistureRatio * 1000) / 10}%&nbsp;moisture</Typography>
+          </Grid>}
           <Grid item>
             <CircularProgress
               size={20}
