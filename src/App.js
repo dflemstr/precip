@@ -21,36 +21,43 @@ const styles = theme => ({
 class App extends React.Component {
   constructor (props) {
     super(props)
-    this.controller = 'AbortController' in window ? new window.AbortController() : null
+    this.controller = typeof window.AbortController !== 'undefined' ? new window.AbortController() : null
     this.interval = null
     this.state = {error: null, data: null}
     this.mounted = false
   }
 
-  componentDidMount () {
+  async componentDidMount () {
     this.mounted = true
-    this._update()
     this.interval = setInterval(() => this._update(), 60 * 1000)
+    await this._update()
   }
 
-  _update () {
-    window.fetch('https://s3-eu-west-1.amazonaws.com/precip-stats/data.json', {
-      headers: {
-        'accept': 'application/json'
-      },
-      signal: this.controller ? this.controller.signal : null
-    })
-      .then(response => response.json())
-      .catch(error => {
-        if (this.mounted) {
-          this.setState({...this.state, error})
-        }
+  async _update () {
+    try {
+      const response = await window.fetch('https://s3-eu-west-1.amazonaws.com/precip-stats/data.json', {
+        headers: {
+          'accept': 'application/json'
+        },
+        signal: this.controller ? this.controller.signal : null
       })
-      .then(data => {
-        if (this.mounted) {
-          this.setState({...this.state, data})
-        }
-      })
+      const data = await response.json()
+      this.onDataReceived(data)
+    } catch (error) {
+      this.onDataError(error)
+    }
+  }
+
+  onDataReceived (data) {
+    if (this.mounted) {
+      this.setState({...this.state, data, error: null})
+    }
+  }
+
+  onDataError (error) {
+    if (this.mounted) {
+      this.setState({...this.state, error, data: null})
+    }
   }
 
   componentWillUnmount () {
