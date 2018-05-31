@@ -141,8 +141,9 @@ fn collect_stats_job(
     #[async]
     for _ in every("collect stats".to_owned(), time::Duration::from_secs(60)) {
         let state_tx = state_tx.clone();
+        let timeseries_samples = db.collect_timeseries_samples()?;
         let stats = db.collect_stats()?;
-        let state = stats_to_state(&loaded_modules, &stats);
+        let state = build_state(&loaded_modules, &timeseries_samples, &stats);
 
         await!(state_tx.send(state))?;
     }
@@ -193,7 +194,11 @@ fn upload_states_to_s3(
     Ok(())
 }
 
-fn stats_to_state<M>(loaded_modules: &[M], stats: &[db::model::Stats]) -> schema::State
+fn build_state<M>(
+    loaded_modules: &[M],
+    timeseries_samples: &[db::model::TimeseriesSample],
+    stats: &[db::model::Stats],
+) -> schema::State
 where
     M: AsRef<ModuleConfig>,
 {
@@ -208,21 +213,32 @@ where
                 name: module.name.to_owned(),
                 running: false,
                 force_running: false,
+                min_moisture: 0.0,
+                max_moisture: 0.0,
+                last_moisture: 0.0,
                 historical_moisture: Vec::new(),
             },
         );
     }
 
+    for sample in timeseries_samples {
+        if let Some(module) = modules.get_mut(&sample.module_id) {
+            module.historical_moisture.push(schema::Sample {
+                measurement_start: sample.slice,
+                min: sample.min_moisture,
+                max: sample.max_moisture,
+                p25: sample.p25_moisture,
+                p50: sample.p50_moisture,
+                p75: sample.p75_moisture,
+            });
+        }
+    }
+
     for stat in stats {
         if let Some(module) = modules.get_mut(&stat.module_id) {
-            module.historical_moisture.push(schema::Sample {
-                measurement_start: stat.slice,
-                min: stat.min_moisture,
-                max: stat.max_moisture,
-                p25: stat.p25_moisture,
-                p50: stat.p50_moisture,
-                p75: stat.p75_moisture,
-            });
+            module.min_moisture = stat.min_moisture;
+            module.max_moisture = stat.max_moisture;
+            module.last_moisture = stat.last_moisture;
         }
     }
     let modules = modules.into_iter().map(|(_, v)| v).collect();

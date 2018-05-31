@@ -65,6 +65,14 @@ impl Db {
         Ok(())
     }
 
+    pub fn collect_timeseries_samples(
+        &self,
+    ) -> Result<Vec<model::TimeseriesSample>, failure::Error> {
+        let conn = self.0.get()?;
+        let result = diesel::sql_query(include_str!("timeseries_samples_query.sql")).load(&*conn)?;
+        Ok(result)
+    }
+
     pub fn collect_stats(&self) -> Result<Vec<model::Stats>, failure::Error> {
         let conn = self.0.get()?;
         let result = diesel::sql_query(include_str!("stats_query.sql")).load(&*conn)?;

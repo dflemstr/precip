@@ -41,7 +41,7 @@ pub struct NewSample {
 }
 
 #[derive(Debug, QueryableByName)]
-pub struct Stats {
+pub struct TimeseriesSample {
     #[sql_type = "Integer"]
     pub module_id: i32,
     #[sql_type = "Timestamptz"]
@@ -56,4 +56,16 @@ pub struct Stats {
     pub p50_moisture: f64,
     #[sql_type = "Float8"]
     pub p75_moisture: f64,
+}
+
+#[derive(Debug, QueryableByName)]
+pub struct Stats {
+    #[sql_type = "Integer"]
+    pub module_id: i32,
+    #[sql_type = "Float8"]
+    pub min_moisture: f64,
+    #[sql_type = "Float8"]
+    pub max_moisture: f64,
+    #[sql_type = "Float8"]
+    pub last_moisture: f64,
 }

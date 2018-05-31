@@ -1,5 +1,5 @@
 import React from 'react'
-import { withTheme } from '@material-ui/core/styles/index'
+import { withTheme } from '@material-ui/core/styles'
 import Card from '@material-ui/core/Card'
 import CardHeader from '@material-ui/core/CardHeader'
 import CardContent from '@material-ui/core/CardContent'
@@ -42,7 +42,7 @@ class Plant extends React.Component {
   }
 
   render () {
-    const {title, subtitle, theme, historicalMoisture, ...props} = this.props
+    const {title, subtitle, theme, module: {historicalMoisture}, ...props} = this.props
 
     const tickColor = theme.palette.grey['500']
     const colorBase = theme.palette.primary.light
@@ -58,11 +58,11 @@ class Plant extends React.Component {
     let plot = null
 
     if (data) {
-      const mins = data.map(d => ({x: new Date(d.measurement_start), y: d.min}))
-      const p25s = data.map(d => ({x: new Date(d.measurement_start), y: d.p25}))
-      const p50s = data.map(d => ({x: new Date(d.measurement_start), y: d.p50}))
-      const p75s = data.map(d => ({x: new Date(d.measurement_start), y: d.p75}))
-      const maxs = data.map(d => ({x: new Date(d.measurement_start), y: d.max}))
+      const mins = data.map(d => ({x: new Date(d.measurementStart), y: d.min}))
+      const p25s = data.map(d => ({x: new Date(d.measurementStart), y: d.p25}))
+      const p50s = data.map(d => ({x: new Date(d.measurementStart), y: d.p50}))
+      const p75s = data.map(d => ({x: new Date(d.measurementStart), y: d.p75}))
+      const maxs = data.map(d => ({x: new Date(d.measurementStart), y: d.max}))
       plot = (<XYPlot
         width={400}
         height={100}
@@ -173,14 +173,19 @@ class Plant extends React.Component {
 Plant.propTypes = {
   title: PropTypes.string,
   subtitle: PropTypes.string,
-  historicalMoisture: PropTypes.arrayOf(PropTypes.shape({
-    measurement_start: PropTypes.string.required,
-    min: PropTypes.number.required,
-    max: PropTypes.number.required,
-    p25: PropTypes.number.required,
-    p50: PropTypes.number.required,
-    p75: PropTypes.number.required
-  }))
+  module: PropTypes.shape({
+    minMoisture: PropTypes.number.required,
+    maxMoisture: PropTypes.number.required,
+    lastMoisture: PropTypes.number.required,
+    historicalMoisture: PropTypes.arrayOf(PropTypes.shape({
+      measurementStart: PropTypes.string.required,
+      min: PropTypes.number.required,
+      max: PropTypes.number.required,
+      p25: PropTypes.number.required,
+      p50: PropTypes.number.required,
+      p75: PropTypes.number.required
+    }))
+  })
 }
 
 export default withTheme()(Plant)
