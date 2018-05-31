@@ -27,3 +27,6 @@ toml = "0.4.6"
 
 [patch.crates-io]
 dotenv = { git = "https://github.com/andy128k/rust-dotenv.git", branch = "failure" }
+
+[profile.release]
+lto = true
