@@ -65,7 +65,7 @@ class Plant extends React.Component {
         width={400}
         height={100}
         xType='time-utc'
-        yDomain={[0, 2]}
+        yDomain={[0, 3.3]}
         onMouseLeave={this._onMouseLeave}
         colorType='linear'
         colorDomain={[0, 1]}
