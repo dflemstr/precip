@@ -100,6 +100,8 @@ fn sample_module_job(
     db: sync::Arc<db::Db>,
 ) -> Result<(), failure::Error> {
     let mut last_report = time::Instant::now();
+    let pump = sync::Arc::new(pumps::Pump::new(module.pump_channel)?);
+
     #[async]
     for _ in util::every(
         format!("sample {}", module.uuid),
@@ -109,6 +111,24 @@ fn sample_module_job(
         // TODO(dflemstr): implement proper scale for moisture (maybe in percent)
         let moisture = 3.3 - await!(sampler.sample(module.moisture_channel))? as f64;
         db.insert_sample(module.id, now, moisture)?;
+
+        if moisture < module.min_moisture {
+            if !pump.running()? {
+                info!(
+                    "Turning on pump name={:?} channel={} uuid={}",
+                    module.name, module.pump_channel, module.uuid
+                );
+                pump.set_running(true)?;
+            }
+        } else {
+            if pump.running()? {
+                info!(
+                    "Turning off pump name={:?} channel={} uuid={}",
+                    module.name, module.pump_channel, module.uuid
+                );
+                pump.set_running(false)?;
+            }
+        }
 
         if last_report.elapsed() > time::Duration::from_secs(60) {
             info!(
@@ -156,13 +176,15 @@ fn load_modules(
                 id: db_module.id,
                 uuid: *uuid,
                 name: plant.name.clone(),
-                moisture_channel: match plant.moisture {
+                min_moisture: plant.min_moisture,
+                moisture_channel: match plant.moisture_channel {
                     0 => ads1x15::Channel::A0,
                     1 => ads1x15::Channel::A1,
                     2 => ads1x15::Channel::A2,
                     3 => ads1x15::Channel::A3,
                     x => bail!("No such moisture channel: {}", x),
                 },
+                pump_channel: plant.pump_channel as u64,
             }))
         })
         .collect()

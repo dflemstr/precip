@@ -14,6 +14,11 @@ impl Pump {
         Ok(Pump { pin })
     }
 
+    pub fn running(&self) -> Result<bool, failure::Error> {
+        let result = self.pin.get_value()? != 0;
+        Ok(result)
+    }
+
     pub fn set_running(&self, running: bool) -> Result<(), failure::Error> {
         self.pin.set_value(if running { 1 } else { 0 })?;
         Ok(())
