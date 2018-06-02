@@ -9,9 +9,9 @@ impl Pump {
     pub fn new(pin: u64) -> Result<Self, failure::Error> {
         debug!("creating pin {}", pin);
         let pin = sysfs_gpio::Pin::new(pin);
-        debug!("exporting pin {}", pin);
+        debug!("exporting pin {}", pin.get_pin());
         pin.export()?;
-        debug!("setting direction of pin {} to low", pin);
+        debug!("setting direction of pin {} to low", pin.get_pin());
         pin.set_direction(sysfs_gpio::Direction::Low)?;
 
         Ok(Pump { pin })
