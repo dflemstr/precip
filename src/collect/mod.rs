@@ -20,7 +20,7 @@ pub fn upload_states_to_s3(
     for state in states.map_err(|_| failure::err_msg("state channel poisoned")) {
         let state_json = serde_json::to_vec(&state)?;
 
-        await!(s3_client.put_object(&rusoto_s3::PutObjectRequest {
+        if let Err(e) = await!(s3_client.put_object(&rusoto_s3::PutObjectRequest {
             body: Some(state_json),
             bucket: "precip-stats".to_owned(),
             key: "data.json".to_owned(),
@@ -28,8 +28,11 @@ pub fn upload_states_to_s3(
             cache_control: Some("max-age=300".to_owned()),
             acl: Some("public-read".to_owned()),
             ..rusoto_s3::PutObjectRequest::default()
-        }))?;
-        info!("uploaded state to S3");
+        })) {
+            warn!("upload to S3 failed, will retry later: {}", e);
+        } else {
+            info!("uploaded state to S3");
+        }
     }
 
     Ok(())
