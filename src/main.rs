@@ -21,6 +21,7 @@ extern crate serde;
 #[macro_use]
 extern crate serde_derive;
 extern crate serde_json;
+extern crate sysfs_gpio;
 extern crate tokio;
 extern crate toml;
 extern crate uuid;
@@ -37,6 +38,7 @@ pub mod collect;
 pub mod config;
 pub mod db;
 pub mod model;
+pub mod pumps;
 pub mod sensors;
 pub mod util;
 
@@ -97,6 +99,7 @@ fn sample_module_job(
     sampler: sync::Arc<sensors::Ads1x15Sampler>,
     db: sync::Arc<db::Db>,
 ) -> Result<(), failure::Error> {
+    let mut last_report = time::Instant::now();
     #[async]
     for _ in util::every(
         format!("sample {}", module.uuid),
@@ -106,6 +109,14 @@ fn sample_module_job(
         // TODO(dflemstr): implement proper scale for moisture (maybe in percent)
         let moisture = 3.3 - await!(sampler.sample(module.moisture_channel))? as f64;
         db.insert_sample(module.id, now, moisture)?;
+
+        if last_report.elapsed() > time::Duration::from_secs(60) {
+            info!(
+                "sensor reading name={:?} moisture={} uuid={}",
+                module.name, moisture, module.uuid
+            );
+            last_report = time::Instant::now();
+        }
     }
 
     Ok(())

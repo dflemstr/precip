@@ -24,6 +24,7 @@ r2d2-diesel = "1.0.0"
 ads1x15 = "0.2.0"
 i2cdev = "0.4.0"
 toml = "0.4.6"
+sysfs_gpio = "0.5.3"
 
 [patch.crates-io]
 dotenv = { git = "https://github.com/andy128k/rust-dotenv.git", branch = "failure" }
