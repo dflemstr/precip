@@ -58,7 +58,7 @@ exports[`renders moisture values 1`] = `
             >
               <path
                 className="rv-xy-plot__series rv-xy-plot__series--line "
-                d="M400,35.46302269082786L400,60Z"
+                d="M400,45.129104661107796L400,60Z"
                 onClick={[Function]}
                 onContextMenu={[Function]}
                 onMouseOut={[Function]}
@@ -74,7 +74,7 @@ exports[`renders moisture values 1`] = `
               />
               <path
                 className="rv-xy-plot__series rv-xy-plot__series--line "
-                d="M400,35.767771001260016L400,60Z"
+                d="M400,45.31380060682425L400,60Z"
                 onClick={[Function]}
                 onContextMenu={[Function]}
                 onMouseOut={[Function]}
@@ -90,7 +90,7 @@ exports[`renders moisture values 1`] = `
               />
               <path
                 className="rv-xy-plot__series rv-xy-plot__series--line "
-                d="M400,36.25822177472739L400,60Z"
+                d="M400,45.61104349983478L400,60Z"
                 onClick={[Function]}
                 onContextMenu={[Function]}
                 onMouseOut={[Function]}
@@ -106,7 +106,7 @@ exports[`renders moisture values 1`] = `
               />
               <path
                 className="rv-xy-plot__series rv-xy-plot__series--line "
-                d="M400,36.69240583618663L400,60Z"
+                d="M400,45.87418535526462L400,60Z"
                 onClick={[Function]}
                 onContextMenu={[Function]}
                 onMouseOut={[Function]}
@@ -122,7 +122,7 @@ exports[`renders moisture values 1`] = `
               />
               <path
                 className="rv-xy-plot__series rv-xy-plot__series--line "
-                d="M400,37.67963742401736L400,60Z"
+                d="M400,46.472507529707485L400,60Z"
                 onClick={[Function]}
                 onContextMenu={[Function]}
                 onMouseOut={[Function]}
@@ -656,7 +656,7 @@ exports[`renders without crashing 1`] = `
             >
               <path
                 className="rv-xy-plot__series rv-xy-plot__series--line "
-                d="M400,35.46302269082786L400,60Z"
+                d="M400,45.129104661107796L400,60Z"
                 onClick={[Function]}
                 onContextMenu={[Function]}
                 onMouseOut={[Function]}
@@ -672,7 +672,7 @@ exports[`renders without crashing 1`] = `
               />
               <path
                 className="rv-xy-plot__series rv-xy-plot__series--line "
-                d="M400,35.767771001260016L400,60Z"
+                d="M400,45.31380060682425L400,60Z"
                 onClick={[Function]}
                 onContextMenu={[Function]}
                 onMouseOut={[Function]}
@@ -688,7 +688,7 @@ exports[`renders without crashing 1`] = `
               />
               <path
                 className="rv-xy-plot__series rv-xy-plot__series--line "
-                d="M400,36.25822177472739L400,60Z"
+                d="M400,45.61104349983478L400,60Z"
                 onClick={[Function]}
                 onContextMenu={[Function]}
                 onMouseOut={[Function]}
@@ -704,7 +704,7 @@ exports[`renders without crashing 1`] = `
               />
               <path
                 className="rv-xy-plot__series rv-xy-plot__series--line "
-                d="M400,36.69240583618663L400,60Z"
+                d="M400,45.87418535526462L400,60Z"
                 onClick={[Function]}
                 onContextMenu={[Function]}
                 onMouseOut={[Function]}
@@ -720,7 +720,7 @@ exports[`renders without crashing 1`] = `
               />
               <path
                 className="rv-xy-plot__series rv-xy-plot__series--line "
-                d="M400,37.67963742401736L400,60Z"
+                d="M400,46.472507529707485L400,60Z"
                 onClick={[Function]}
                 onContextMenu={[Function]}
                 onMouseOut={[Function]}
