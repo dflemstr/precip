@@ -169,12 +169,12 @@ class Plant extends React.Component {
 }
 
 Plant.propTypes = {
-  title: PropTypes.string,
-  subtitle: PropTypes.string,
+  title: PropTypes.string.isRequired,
+  subtitle: PropTypes.string, // TODO: make required?
   module: PropTypes.shape({
-    minMoisture: PropTypes.number.required,
-    maxMoisture: PropTypes.number.required,
-    lastMoisture: PropTypes.number.required,
+    minMoisture: PropTypes.number.isRequired,
+    maxMoisture: PropTypes.number.isRequired,
+    lastMoisture: PropTypes.number.isRequired,
     moistureTimeseries: PropTypes.shape({
       measurementStart: PropTypes.arrayOf(PropTypes.string),
       min: PropTypes.arrayOf(PropTypes.number),
@@ -182,7 +182,7 @@ Plant.propTypes = {
       p25: PropTypes.arrayOf(PropTypes.number),
       p50: PropTypes.arrayOf(PropTypes.number),
       p75: PropTypes.arrayOf(PropTypes.number)
-    })
+    }).isRequired
   })
 }
 
