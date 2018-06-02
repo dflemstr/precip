@@ -25,7 +25,6 @@ extern crate tokio;
 extern crate toml;
 extern crate uuid;
 
-use std::collections;
 use std::env;
 use std::fs;
 use std::sync;
@@ -37,15 +36,9 @@ use futures::prelude::*;
 pub mod collect;
 pub mod config;
 pub mod db;
+pub mod model;
 pub mod sensors;
 pub mod util;
-
-struct ModuleConfig {
-    id: i32,
-    uuid: uuid::Uuid,
-    name: String,
-    moisture_channel: ads1x15::Channel,
-}
 
 fn main() -> Result<(), failure::Error> {
     use std::io::Read;
@@ -100,7 +93,7 @@ fn main() -> Result<(), failure::Error> {
 
 #[async]
 fn sample_module_job(
-    module: sync::Arc<ModuleConfig>,
+    module: sync::Arc<model::ModuleConfig>,
     sampler: sync::Arc<sensors::Ads1x15Sampler>,
     db: sync::Arc<db::Db>,
 ) -> Result<(), failure::Error> {
@@ -120,16 +113,16 @@ fn sample_module_job(
 
 #[async]
 fn collect_stats_job(
-    loaded_modules: sync::Arc<Vec<sync::Arc<ModuleConfig>>>,
+    loaded_modules: sync::Arc<Vec<sync::Arc<model::ModuleConfig>>>,
     db: sync::Arc<db::Db>,
-    state_tx: futures::sync::mpsc::Sender<collect::schema::State>,
+    state_tx: futures::sync::mpsc::Sender<collect::State>,
 ) -> Result<(), failure::Error> {
     #[async]
     for _ in util::every("collect stats".to_owned(), time::Duration::from_secs(60)) {
         let state_tx = state_tx.clone();
         let timeseries_samples = db.collect_timeseries_samples()?;
         let stats = db.collect_stats()?;
-        let state = build_state(&loaded_modules, &timeseries_samples, &stats);
+        let state = collect::State::new(&loaded_modules, &timeseries_samples, &stats);
 
         await!(state_tx.send(state))?;
     }
@@ -140,7 +133,7 @@ fn collect_stats_job(
 fn load_modules(
     config: &config::Config,
     db: &db::Db,
-) -> Result<Vec<sync::Arc<ModuleConfig>>, failure::Error> {
+) -> Result<Vec<sync::Arc<model::ModuleConfig>>, failure::Error> {
     config
         .plant
         .iter()
@@ -148,7 +141,7 @@ fn load_modules(
             let db_module = db.ensure_module(*uuid, &plant.name)?;
             debug!("loaded module: {:?}", db_module);
 
-            Ok(sync::Arc::new(ModuleConfig {
+            Ok(sync::Arc::new(model::ModuleConfig {
                 id: db_module.id,
                 uuid: *uuid,
                 name: plant.name.clone(),
@@ -162,57 +155,4 @@ fn load_modules(
             }))
         })
         .collect()
-}
-
-fn build_state<M>(
-    loaded_modules: &[M],
-    timeseries_samples: &[db::model::TimeseriesSample],
-    stats: &[db::model::Stats],
-) -> collect::schema::State
-where
-    M: AsRef<ModuleConfig>,
-{
-    let mut modules = collections::HashMap::new();
-
-    for module in loaded_modules {
-        let module = module.as_ref();
-        modules.insert(
-            module.id,
-            collect::schema::Module {
-                id: module.uuid.to_string(),
-                name: module.name.to_owned(),
-                running: false,
-                force_running: false,
-                min_moisture: 0.0,
-                max_moisture: 0.0,
-                last_moisture: 0.0,
-                moisture_timeseries: collect::schema::Timeseries::default(),
-            },
-        );
-    }
-
-    for sample in timeseries_samples {
-        if let Some(module) = modules.get_mut(&sample.module_id) {
-            module
-                .moisture_timeseries
-                .measurement_start
-                .push(sample.slice);
-            module.moisture_timeseries.min.push(sample.min_moisture);
-            module.moisture_timeseries.max.push(sample.max_moisture);
-            module.moisture_timeseries.p25.push(sample.p25_moisture);
-            module.moisture_timeseries.p50.push(sample.p50_moisture);
-            module.moisture_timeseries.p75.push(sample.p75_moisture);
-        }
-    }
-
-    for stat in stats {
-        if let Some(module) = modules.get_mut(&stat.module_id) {
-            module.min_moisture = stat.min_moisture;
-            module.max_moisture = stat.max_moisture;
-            module.last_moisture = stat.last_moisture;
-        }
-    }
-    let modules = modules.into_iter().map(|(_, v)| v).collect();
-
-    collect::schema::State { modules }
 }
