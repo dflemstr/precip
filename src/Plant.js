@@ -62,11 +62,12 @@ class Plant extends React.Component {
 
     if (moistureTimeseries) {
       const data = moistureTimeseries
-      const mins = data.min.map((v, i) => ({x: new Date(data.measurementStart[i]), y: v}))
-      const p25s = data.p25.map((v, i) => ({x: new Date(data.measurementStart[i]), y: v}))
-      const p50s = data.p50.map((v, i) => ({x: new Date(data.measurementStart[i]), y: v}))
-      const p75s = data.p75.map((v, i) => ({x: new Date(data.measurementStart[i]), y: v}))
-      const maxs = data.max.map((v, i) => ({x: new Date(data.measurementStart[i]), y: v}))
+      const xs = data.measurementStart.map(v => new Date(v))
+      const mins = data.min.map((v, i) => ({x: xs[i], y: v}))
+      const p25s = data.p25.map((v, i) => ({x: xs[i], y: v}))
+      const p50s = data.p50.map((v, i) => ({x: xs[i], y: v}))
+      const p75s = data.p75.map((v, i) => ({x: xs[i], y: v}))
+      const maxs = data.max.map((v, i) => ({x: xs[i], y: v}))
       plot = (<XYPlot
         width={400}
         height={100}
