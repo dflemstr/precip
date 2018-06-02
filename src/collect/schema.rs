@@ -16,16 +16,16 @@ pub struct Module {
     pub min_moisture: f64,
     pub max_moisture: f64,
     pub last_moisture: f64,
-    pub historical_moisture: Vec<Sample<f64>>,
+    pub moisture_timeseries: Timeseries<f64>,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Default, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct Sample<A> {
-    pub measurement_start: chrono::DateTime<chrono::Utc>,
-    pub min: A,
-    pub max: A,
-    pub p25: A,
-    pub p50: A,
-    pub p75: A,
+pub struct Timeseries<A> {
+    pub measurement_start: Vec<chrono::DateTime<chrono::Utc>>,
+    pub min: Vec<A>,
+    pub max: Vec<A>,
+    pub p25: Vec<A>,
+    pub p50: Vec<A>,
+    pub p75: Vec<A>,
 }

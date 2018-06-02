@@ -1,4 +1,4 @@
-#![feature(proc_macro, generators)]
+#![feature(proc_macro, generators, trivial_bounds)]
 
 extern crate ads1x15;
 extern crate chrono;
@@ -186,21 +186,22 @@ where
                 min_moisture: 0.0,
                 max_moisture: 0.0,
                 last_moisture: 0.0,
-                historical_moisture: Vec::new(),
+                moisture_timeseries: collect::schema::Timeseries::default(),
             },
         );
     }
 
     for sample in timeseries_samples {
         if let Some(module) = modules.get_mut(&sample.module_id) {
-            module.historical_moisture.push(collect::schema::Sample {
-                measurement_start: sample.slice,
-                min: sample.min_moisture,
-                max: sample.max_moisture,
-                p25: sample.p25_moisture,
-                p50: sample.p50_moisture,
-                p75: sample.p75_moisture,
-            });
+            module
+                .moisture_timeseries
+                .measurement_start
+                .push(sample.slice);
+            module.moisture_timeseries.min.push(sample.min_moisture);
+            module.moisture_timeseries.max.push(sample.max_moisture);
+            module.moisture_timeseries.p25.push(sample.p25_moisture);
+            module.moisture_timeseries.p50.push(sample.p50_moisture);
+            module.moisture_timeseries.p75.push(sample.p75_moisture);
         }
     }
 
