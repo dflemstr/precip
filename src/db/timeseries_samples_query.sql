@@ -12,7 +12,7 @@ SELECT
   WITHIN GROUP (ORDER BY sample.moisture ASC)    p75_moisture
 FROM generate_series(
          date_trunc('minute', now()) - (date_part('minute', now()) :: INTEGER % 5) * INTERVAL '1 minute' -
-         INTERVAL '23 hours 55 minutes',
+         INTERVAL '71 hours 55 minutes',
          date_trunc('minute', now()) - (date_part('minute', now()) :: INTEGER % 5) * INTERVAL '1 minute',
          '5 minutes') slice
   JOIN sample
