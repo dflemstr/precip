@@ -25,11 +25,17 @@ class Plant extends React.Component {
   }
 
   _onNearestX (value, {index}) {
-    const d = this.props.module.historicalMoisture[index]
-    const x = new Date(d.measurementStart)
+    const data = this.props.module.moistureTimeseries
+    const x = new Date(data.measurementStart[index])
     this.setState({
       ...this.state,
-      crosshairValues: [{x, y: d.min}, {x, y: d.p25}, {x, y: d.p50}, {x, y: d.p75}, {x, y: d.max}]
+      crosshairValues: [
+        {x, y: data.min[index]},
+        {x, y: data.p25[index]},
+        {x, y: data.p50[index]},
+        {x, y: data.p75[index]},
+        {x, y: data.max[index]}
+      ]
     })
   }
 
@@ -38,7 +44,7 @@ class Plant extends React.Component {
   }
 
   render () {
-    const {title, subtitle, theme, module: {historicalMoisture, minMoisture, maxMoisture, lastMoisture}, ...props} = this.props
+    const {title, subtitle, theme, module: {moistureTimeseries, minMoisture, maxMoisture, lastMoisture}, ...props} = this.props
 
     const tickColor = theme.palette.grey['500']
     const colorBase = theme.palette.primary.light
@@ -54,13 +60,13 @@ class Plant extends React.Component {
 
     let plot = null
 
-    if (historicalMoisture) {
-      const data = historicalMoisture
-      const mins = data.map(d => ({x: new Date(d.measurementStart), y: d.min}))
-      const p25s = data.map(d => ({x: new Date(d.measurementStart), y: d.p25}))
-      const p50s = data.map(d => ({x: new Date(d.measurementStart), y: d.p50}))
-      const p75s = data.map(d => ({x: new Date(d.measurementStart), y: d.p75}))
-      const maxs = data.map(d => ({x: new Date(d.measurementStart), y: d.max}))
+    if (moistureTimeseries) {
+      const data = moistureTimeseries
+      const mins = data.min.map((v, i) => ({x: new Date(data.measurementStart[i]), y: v}))
+      const p25s = data.p25.map((v, i) => ({x: new Date(data.measurementStart[i]), y: v}))
+      const p50s = data.p50.map((v, i) => ({x: new Date(data.measurementStart[i]), y: v}))
+      const p75s = data.p75.map((v, i) => ({x: new Date(data.measurementStart[i]), y: v}))
+      const maxs = data.max.map((v, i) => ({x: new Date(data.measurementStart[i]), y: v}))
       plot = (<XYPlot
         width={400}
         height={100}
@@ -168,14 +174,14 @@ Plant.propTypes = {
     minMoisture: PropTypes.number.required,
     maxMoisture: PropTypes.number.required,
     lastMoisture: PropTypes.number.required,
-    historicalMoisture: PropTypes.arrayOf(PropTypes.shape({
-      measurementStart: PropTypes.string.required,
-      min: PropTypes.number.required,
-      max: PropTypes.number.required,
-      p25: PropTypes.number.required,
-      p50: PropTypes.number.required,
-      p75: PropTypes.number.required
-    }))
+    moistureTimeseries: PropTypes.shape({
+      measurementStart: PropTypes.arrayOf(PropTypes.string),
+      min: PropTypes.arrayOf(PropTypes.number),
+      max: PropTypes.arrayOf(PropTypes.number),
+      p25: PropTypes.arrayOf(PropTypes.number),
+      p50: PropTypes.arrayOf(PropTypes.number),
+      p75: PropTypes.arrayOf(PropTypes.number)
+    })
   })
 }
 
