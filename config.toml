@@ -6,7 +6,7 @@ pump_channel = 18
 
 [plant.71f3abbf-eda2-4b1f-a9a2-8af7f290e0a6]
 name = "Plant 2"
-min_moisture = 1.6
+min_moisture = 1.1
 moisture_channel = 1
 pump_channel = 23
 
@@ -18,6 +18,6 @@ pump_channel = 24
 
 [plant.d4b61675-bfb1-4828-8a08-b99d32eb5e51]
 name = "Plant 4"
-min_moisture = 1.8
+min_moisture = 1.7
 moisture_channel = 3
 pump_channel = 25
