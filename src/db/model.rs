@@ -6,6 +6,7 @@ use diesel::sql_types::Integer;
 use diesel::sql_types::Timestamptz;
 
 use super::schema::module;
+use super::schema::pump_event;
 use super::schema::sample;
 
 #[derive(Debug, Identifiable, Associations, Queryable)]
@@ -68,4 +69,21 @@ pub struct Stats {
     pub max_moisture: f64,
     #[sql_type = "Float8"]
     pub last_moisture: f64,
+}
+
+#[derive(Debug, Identifiable, Associations, Queryable)]
+#[table_name = "pump_event"]
+pub struct PumpEvent {
+    pub id: i32,
+    pub created: chrono::DateTime<chrono::Utc>,
+    pub module_id: i32,
+    pub pump_running: bool,
+}
+
+#[derive(Debug, Insertable, AsChangeset)]
+#[table_name = "pump_event"]
+pub struct NewPumpEvent {
+    pub created: chrono::DateTime<chrono::Utc>,
+    pub module_id: i32,
+    pub pump_running: bool,
 }
