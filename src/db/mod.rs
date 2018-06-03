@@ -65,6 +65,26 @@ impl Db {
         Ok(())
     }
 
+    pub fn insert_pump_event(
+        &self,
+        module_id: i32,
+        created: chrono::DateTime<chrono::Utc>,
+        pump_running: bool,
+    ) -> Result<(), failure::Error> {
+        let conn = self.0.get()?;
+        let new_pump_event = model::NewPumpEvent {
+            module_id,
+            created,
+            pump_running,
+        };
+
+        diesel::insert_into(schema::pump_event::table)
+            .values(&new_pump_event)
+            .execute(&*conn)?;
+
+        Ok(())
+    }
+
     pub fn collect_timeseries_samples(
         &self,
     ) -> Result<Vec<model::TimeseriesSample>, failure::Error> {

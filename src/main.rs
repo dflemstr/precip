@@ -119,6 +119,7 @@ fn sample_module_job(
                     module.name, module.pump_channel, module.uuid
                 );
                 pump.set_running(true)?;
+                db.insert_pump_event(module.id, now, true)?;
             }
         } else {
             if pump.running()? {
@@ -127,6 +128,7 @@ fn sample_module_job(
                     module.name, module.pump_channel, module.uuid
                 );
                 pump.set_running(false)?;
+                db.insert_pump_event(module.id, now, false)?;
             }
         }
 
