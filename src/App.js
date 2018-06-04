@@ -9,6 +9,7 @@ import CardContent from '@material-ui/core/CardContent'
 import { withStyles } from '@material-ui/core/styles'
 import backgroundImage from './background.jpg?sizes[]=300,sizes[]=600,sizes[]=1200,sizes[]=2000'
 import Moment from 'react-moment'
+import { sortBy } from 'lodash/collection'
 
 const styles = theme => ({
   root: {
@@ -66,6 +67,7 @@ class App extends React.Component {
 
   onDataReceived (data) {
     if (this.mounted) {
+      data.modules = sortBy(data.modules, 'name')
       this.setState({...this.state, data, error: null})
     }
   }
