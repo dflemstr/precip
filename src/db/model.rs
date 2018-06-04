@@ -71,7 +71,7 @@ pub struct Stats {
     pub last_moisture: f64,
 }
 
-#[derive(Debug, Identifiable, Associations, Queryable)]
+#[derive(Debug, Identifiable, Associations, Queryable, QueryableByName)]
 #[table_name = "pump_event"]
 pub struct PumpEvent {
     pub id: i32,

@@ -14,9 +14,10 @@ use chrono;
 use db;
 use model;
 
-#[derive(Debug, Default, Serialize)]
+#[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct State {
+    pub created: chrono::DateTime<chrono::Utc>,
     pub modules: Vec<Module>,
 }
 
@@ -31,6 +32,7 @@ pub struct Module {
     pub max_moisture: f64,
     pub last_moisture: f64,
     pub moisture_timeseries: Timeseries<f64>,
+    pub pump_running: Vec<[chrono::DateTime<chrono::Utc>; 2]>,
 }
 
 #[derive(Debug, Default, Serialize)]
@@ -45,10 +47,17 @@ pub struct Timeseries<A> {
 }
 
 impl State {
-    pub fn new<M, TS, S>(loaded_modules: &[M], timeseries_samples: &[TS], stats: &[S]) -> State
+    pub fn new<M, TS, PE, S>(
+        created: chrono::DateTime<chrono::Utc>,
+        loaded_modules: &[M],
+        timeseries_samples: &[TS],
+        pump_events: &[PE],
+        stats: &[S],
+    ) -> State
     where
         M: borrow::Borrow<model::ModuleConfig>,
         TS: borrow::Borrow<db::model::TimeseriesSample>,
+        PE: borrow::Borrow<db::model::PumpEvent>,
         S: borrow::Borrow<db::model::Stats>,
     {
         let mut modules = collections::HashMap::new();
@@ -66,6 +75,7 @@ impl State {
                     max_moisture: 0.0,
                     last_moisture: 0.0,
                     moisture_timeseries: Timeseries::default(),
+                    pump_running: Vec::new(),
                 },
             );
         }
@@ -85,6 +95,33 @@ impl State {
             }
         }
 
+        let mut last_pump_start = collections::HashMap::new();
+        for pump_event in pump_events {
+            let pump_event = pump_event.borrow();
+            if let Some(module) = modules.get_mut(&pump_event.module_id) {
+                if pump_event.pump_running {
+                    last_pump_start.insert(pump_event.module_id, Some(pump_event.created));
+                } else {
+                    if let Some(start) = last_pump_start
+                        .get_mut(&pump_event.module_id)
+                        .and_then(|o| o.take())
+                    {
+                        module.pump_running.push([start, pump_event.created]);
+                    } else {
+                        warn!("Pump event stop running without matching start running event: ");
+                    }
+                }
+            }
+        }
+        for module in loaded_modules {
+            let module_id = module.borrow().id;
+            if let Some(start) = last_pump_start.get_mut(&module_id).and_then(|o| o.take()) {
+                if let Some(module) = modules.get_mut(&module_id) {
+                    module.pump_running.push([start, created]);
+                }
+            }
+        }
+
         for stat in stats {
             let stat = stat.borrow();
             if let Some(module) = modules.get_mut(&stat.module_id) {
@@ -95,7 +132,7 @@ impl State {
         }
         let modules = modules.into_iter().map(|(_, v)| v).collect();
 
-        State { modules }
+        State { created, modules }
     }
 }
 

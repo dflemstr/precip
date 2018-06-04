@@ -93,6 +93,12 @@ impl Db {
         Ok(result)
     }
 
+    pub fn collect_pump_events(&self) -> Result<Vec<model::PumpEvent>, failure::Error> {
+        let conn = self.0.get()?;
+        let result = diesel::sql_query(include_str!("pump_event_query.sql")).load(&*conn)?;
+        Ok(result)
+    }
+
     pub fn collect_stats(&self) -> Result<Vec<model::Stats>, failure::Error> {
         let conn = self.0.get()?;
         let result = diesel::sql_query(include_str!("stats_query.sql")).load(&*conn)?;

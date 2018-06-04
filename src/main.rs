@@ -152,10 +152,18 @@ fn collect_stats_job(
 ) -> Result<(), failure::Error> {
     #[async]
     for _ in util::every("collect stats".to_owned(), time::Duration::from_secs(60)) {
+        let created = chrono::Utc::now();
         let state_tx = state_tx.clone();
         let timeseries_samples = db.collect_timeseries_samples()?;
+        let pump_events = db.collect_pump_events()?;
         let stats = db.collect_stats()?;
-        let state = collect::State::new(&loaded_modules, &timeseries_samples, &stats);
+        let state = collect::State::new(
+            created,
+            &loaded_modules,
+            &timeseries_samples,
+            &pump_events,
+            &stats,
+        );
 
         await!(state_tx.send(state))?;
     }
