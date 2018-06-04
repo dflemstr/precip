@@ -5,6 +5,7 @@ import registerServiceWorker from './registerServiceWorker'
 import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles'
 import CssBaseline from '@material-ui/core/CssBaseline'
 import 'typeface-roboto'
+import './style.css'
 
 const theme = createMuiTheme({})
 

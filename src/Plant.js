@@ -3,7 +3,7 @@ import { withTheme } from '@material-ui/core/styles'
 import Card from '@material-ui/core/Card'
 import CardHeader from '@material-ui/core/CardHeader'
 import CardContent from '@material-ui/core/CardContent'
-import { AreaSeries, Crosshair, XAxis, XYPlot } from 'react-vis'
+import { AreaSeries, Crosshair, XYPlot, XAxis, VerticalRectSeries } from 'react-vis'
 import { default as chroma } from 'chroma-js'
 import 'react-vis/dist/style.css'
 import Typography from '@material-ui/core/Typography'
@@ -44,7 +44,7 @@ class Plant extends React.Component {
   }
 
   render () {
-    const {title, subtitle, theme, module: {moistureTimeseries, minMoisture, maxMoisture, lastMoisture}, ...props} = this.props
+    const {title, subtitle, theme, module: {moistureTimeseries, minMoisture, maxMoisture, lastMoisture, pumpRunning}, ...props} = this.props
 
     const tickColor = theme.palette.grey['500']
     const colorBase = theme.palette.primary.light
@@ -52,6 +52,7 @@ class Plant extends React.Component {
       colorBase,
       chroma(colorBase).brighten().brighten().hex()
     ]
+    const colorMark = chroma(theme.palette.secondary.light).alpha(0.5).css()
     const legendTextColor = theme.palette.common.white
 
     const crosshairValues = this.state.crosshairValues
@@ -68,66 +69,73 @@ class Plant extends React.Component {
       const p50s = data.p50.map((v, i) => ({x: xs[i], y: v}))
       const p75s = data.p75.map((v, i) => ({x: xs[i], y: v}))
       const maxs = data.max.map((v, i) => ({x: xs[i], y: v}))
-      plot = (<XYPlot
-        width={400}
-        height={100}
-        xType='time-utc'
-        yDomain={[0, 3.3]}
-        onMouseLeave={this._onMouseLeave}
-        colorType='linear'
-        colorDomain={[0, 1]}
-        colorRange={colorRange}
-        margin={{left: 0, right: 0, top: 0, bottom: 40}}>
-        <AreaSeries
-          data={maxs}
-          curve='curveMonotoneX'
-          color={1.0} />
-        <AreaSeries
-          data={p75s}
-          onNearestX={this._onNearestX}
-          curve='curveMonotoneX'
-          color={0.75} />
-        <AreaSeries
-          data={p50s}
-          curve='curveMonotoneX'
-          color={0.5} />
-        <AreaSeries
-          data={p25s}
-          curve='curveMonotoneX'
-          color={0.25} />
-        <AreaSeries
-          data={mins}
-          curve='curveMonotoneX'
-          color={0} />
-        <XAxis
-          tickTotal={6}
-          tickSizeInner={0}
-          style={{
-            line: {
-              stroke: 'none'
-            },
-            ticks: {
-              fill: tickColor
-            },
-            text: {
-              fontFamily: theme.typography.body1.fontFamily,
-              fontSize: theme.typography.body1.fontSize
-            }
-          }} />
-        {crosshairValues.length > 0 &&
-        <Crosshair values={crosshairValues}>
-          <div className='rv-crosshair__inner__content'>
-            <Typography className='rv-crosshair__item' variant='caption' style={{color: legendTextColor}}>
-              max&#9;{Math.round(crosshairValues[4].y * 1000) / 1000}<br />
-              p75&#9;{Math.round(crosshairValues[3].y * 1000) / 1000}<br />
-              p50&#9;{Math.round(crosshairValues[2].y * 1000) / 1000}<br />
-              p25&#9;{Math.round(crosshairValues[1].y * 1000) / 1000}<br />
-              min&#9;{Math.round(crosshairValues[0].y * 1000) / 1000}
-            </Typography>
-          </div>
-        </Crosshair>
-        }
-      </XYPlot>)
+      const pumpings = pumpRunning.map(v => ({x: new Date(v[0]), x0: new Date(v[1]), y: minMoisture, y0: maxMoisture}))
+      plot = (
+        <XYPlot
+          width={400}
+          height={100}
+          xType='time-utc'
+          yDomain={[minMoisture, maxMoisture]}
+          onMouseLeave={this._onMouseLeave}
+          colorType='linear'
+          colorDomain={[0, 1]}
+          colorRange={colorRange}
+          margin={{left: 0, right: 0, top: 0, bottom: 40}}>
+          <AreaSeries
+            data={maxs}
+            curve='curveMonotoneX'
+            color={1.0} />
+          <AreaSeries
+            data={p75s}
+            onNearestX={this._onNearestX}
+            curve='curveMonotoneX'
+            color={0.75} />
+          <AreaSeries
+            data={p50s}
+            curve='curveMonotoneX'
+            color={0.5} />
+          <AreaSeries
+            data={p25s}
+            curve='curveMonotoneX'
+            color={0.25} />
+          <AreaSeries
+            data={mins}
+            curve='curveMonotoneX'
+            color={0} />
+          <VerticalRectSeries
+            data={pumpings}
+            colorType='literal'
+            color={colorMark}
+          />
+          <XAxis
+            tickTotal={6}
+            tickSizeInner={0}
+            style={{
+              line: {
+                stroke: 'none'
+              },
+              ticks: {
+                fill: tickColor
+              },
+              text: {
+                fontFamily: theme.typography.body1.fontFamily,
+                fontSize: theme.typography.body1.fontSize
+              }
+            }} />
+          {crosshairValues.length > 0 &&
+          <Crosshair values={crosshairValues}>
+            <div className='rv-crosshair__inner__content'>
+              <Typography className='rv-crosshair__item' variant='caption' style={{color: legendTextColor}}>
+                max&#9;{Math.round(crosshairValues[4].y * 1000) / 1000}<br />
+                p75&#9;{Math.round(crosshairValues[3].y * 1000) / 1000}<br />
+                p50&#9;{Math.round(crosshairValues[2].y * 1000) / 1000}<br />
+                p25&#9;{Math.round(crosshairValues[1].y * 1000) / 1000}<br />
+                min&#9;{Math.round(crosshairValues[0].y * 1000) / 1000}
+              </Typography>
+            </div>
+          </Crosshair>
+          }
+        </XYPlot>)
     }
 
     return (<Card {...props}>
