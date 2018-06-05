@@ -1,6 +1,16 @@
 #!/bin/sh -eu
 dir=$(dirname "$0")
-cp "$dir/config.toml" /etc/precip/config.toml
-cp "$dir/precip.service" /etc/systemd/system/precip.service
-cp "$dir/target/debug/precip" /usr/local/bin/precip
+
+mkdir -p /etc/precip
+install -D -m 644 "$dir/precip.service" /etc/systemd/system
+install -D -o precip -m 644 "$dir/config.toml" /etc/precip
+install -D -m 755 "$dir/target/debug/precip" /usr/local/bin
+
+if [ ! -f /etc/precip/aws-credentials ]; then
+    echo >&2 "$0: You need to put valid AWS credentials in /etc/precip/aws-credentials and re-run this script"
+else
+    chown precip /etc/precip/aws-credentials
+    chmod 600 /etc/precip/aws-credentials
+fi
+
 systemctl daemon-reload
