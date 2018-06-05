@@ -27,6 +27,7 @@ extern crate toml;
 extern crate uuid;
 
 use std::env;
+use std::ffi;
 use std::fs;
 use std::sync;
 use std::thread;
@@ -46,10 +47,13 @@ fn main() -> Result<(), failure::Error> {
     use std::io::Read;
 
     env_logger::init();
-    dotenv::dotenv().unwrap();
+    // Ignore missing .env file
+    let _ = dotenv::dotenv();
 
     let mut config_string = String::new();
-    fs::File::open("config.toml")?.read_to_string(&mut config_string)?;
+    let config_path =
+        env::var_os("PRECIP_CONFIG").unwrap_or_else(|| ffi::OsString::from("config.toml"));
+    fs::File::open(config_path)?.read_to_string(&mut config_string)?;
     let config = toml::from_str(&config_string)?;
 
     let database_url = env::var("DATABASE_URL")?;

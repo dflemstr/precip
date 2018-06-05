@@ -1,0 +1,14 @@
+[Unit]
+Description=Precip irrigation controller service
+
+[Service]
+Environment="RUST_BACKTRACE=1"
+Environment="RUST_LOG=precip=info"
+Environment="AWS_SHARED_CREDENTIALS_FILE=/etc/precip/aws-credentials"
+Environment="DATABASE_URL=postgres://localhost/precip"
+Environment="PRECIP_CONFIG=/etc/precip/config.toml"
+ExecStart=/usr/local/bin/precip
+User=precip
+
+[Install]
+WantedBy=multi-user.target

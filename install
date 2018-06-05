@@ -1,0 +1,6 @@
+#!/bin/sh -eu
+dir=$(dirname "$0")
+cp "$dir/config.toml" /etc/precip/config.toml
+cp "$dir/precip.service" /etc/systemd/system/precip.service
+cp "$dir/target/debug/precip" /usr/local/bin/precip
+systemctl daemon-reload
