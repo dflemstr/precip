@@ -87,15 +87,13 @@ impl State {
         for sample in timeseries_samples {
             let sample = sample.borrow();
             if let Some(module) = modules.get_mut(&sample.module_id) {
-                module
-                    .moisture_timeseries
-                    .measurement_start
-                    .push(sample.slice);
-                module.moisture_timeseries.min.push(sample.min_moisture);
-                module.moisture_timeseries.max.push(sample.max_moisture);
-                module.moisture_timeseries.p25.push(sample.p25_moisture);
-                module.moisture_timeseries.p50.push(sample.p50_moisture);
-                module.moisture_timeseries.p75.push(sample.p75_moisture);
+                let ts = &mut module.moisture_timeseries;
+                ts.measurement_start.push(sample.slice);
+                ts.min.push(sample.min_moisture);
+                ts.max.push(sample.max_moisture);
+                ts.p25.push(sample.p25_moisture);
+                ts.p50.push(sample.p50_moisture);
+                ts.p75.push(sample.p75_moisture);
             }
         }
 
