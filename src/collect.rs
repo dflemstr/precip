@@ -31,6 +31,8 @@ pub struct Module {
     pub min_moisture: f64,
     pub max_moisture: f64,
     pub last_moisture: f64,
+    pub target_min_moisture: f64,
+    pub target_max_moisture: f64,
     pub moisture_timeseries: Timeseries<f64>,
     pub pump_running: Vec<[chrono::DateTime<chrono::Utc>; 2]>,
 }
@@ -73,6 +75,8 @@ impl State {
                     force_running: false,
                     min_moisture: 0.0,
                     max_moisture: 0.0,
+                    target_min_moisture: module.min_moisture,
+                    target_max_moisture: module.max_moisture,
                     last_moisture: 0.0,
                     moisture_timeseries: Timeseries::default(),
                     pump_running: Vec::new(),

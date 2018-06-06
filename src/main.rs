@@ -116,23 +116,23 @@ fn sample_module_job(
         let moisture = 3.3 - await!(sampler.sample(module.moisture_channel))? as f64;
         db.insert_sample(module.id, now, moisture)?;
 
-        if moisture < module.min_moisture {
-            if !pump.running()? {
-                info!(
-                    "Turning on pump name={:?} channel={} uuid={}",
-                    module.name, module.pump_channel, module.uuid
-                );
-                pump.set_running(true)?;
-                db.insert_pump_event(module.id, now, true)?;
-            }
-        } else {
-            if pump.running()? {
+        if pump.running()? {
+            if moisture > module.max_moisture {
                 info!(
                     "Turning off pump name={:?} channel={} uuid={}",
                     module.name, module.pump_channel, module.uuid
                 );
                 pump.set_running(false)?;
                 db.insert_pump_event(module.id, now, false)?;
+            }
+        } else {
+            if moisture < module.min_moisture {
+                info!(
+                    "Turning on pump name={:?} channel={} uuid={}",
+                    module.name, module.pump_channel, module.uuid
+                );
+                pump.set_running(true)?;
+                db.insert_pump_event(module.id, now, true)?;
             }
         }
 
@@ -191,6 +191,7 @@ fn load_modules(
                 uuid: *uuid,
                 name: plant.name.clone(),
                 min_moisture: plant.min_moisture,
+                max_moisture: plant.max_moisture,
                 moisture_channel: match plant.moisture_channel {
                     0 => ads1x15::Channel::A0,
                     1 => ads1x15::Channel::A1,
