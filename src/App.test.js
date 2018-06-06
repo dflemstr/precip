@@ -1,6 +1,7 @@
 import React from 'react'
 import App from './App'
 import renderer from 'react-test-renderer'
+import { JssProvider } from 'react-jss'
 
 /* global beforeEach expect fetch it */
 
@@ -10,6 +11,7 @@ beforeEach(() => {
 
 it('renders moisture values', (done) => {
   const data = {
+    'created': '2018-05-15T17:05:00Z',
     'modules': [{
       'id': '71f3abbf-eda2-4b1f-a9a2-8af7f290e0a6',
       'name': 'Plant 2',
@@ -18,6 +20,7 @@ it('renders moisture values', (done) => {
       'minMoisture': 0.25,
       'maxMoisture': 0.9,
       'lastMoisture': 0.8,
+      'pumpRunning': [['2018-05-15T17:05:00Z', '2018-05-15T17:05:01Z']],
       'moistureTimeseries': {
         'measurementStart': ['2018-05-15T17:05:00Z'],
         'min': [0.7440120858660881],
@@ -31,7 +34,8 @@ it('renders moisture values', (done) => {
 
   fetch.mockResponseOnce(JSON.stringify(data))
 
-  const component = renderer.create(<App />)
+  const generator = (rule, sheet) => `${sheet.options.classNamePrefix}-${rule.key}`
+  const component = renderer.create(<JssProvider generateClassName={generator}><App /></JssProvider>)
 
   // TODO: hack
   setTimeout(() => {
@@ -45,7 +49,8 @@ it('renders moisture values', (done) => {
 it('renders error', (done) => {
   fetch.mockReject(new Error('failure foo bar baz test'))
 
-  const component = renderer.create(<App />)
+  const generator = (rule, sheet) => `${sheet.options.classNamePrefix}-${rule.key}`
+  const component = renderer.create(<JssProvider generateClassName={generator}><App /></JssProvider>)
 
   // TODO: hack
   setTimeout(() => {

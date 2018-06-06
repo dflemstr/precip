@@ -91,6 +91,10 @@ class App extends React.Component {
     this.mounted = false
   }
 
+  componentDidCatch (error, info) {
+    console.log(error)
+  }
+
   render () {
     const {classes} = this.props
     const background =

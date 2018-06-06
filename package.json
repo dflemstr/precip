@@ -21,7 +21,7 @@
   "scripts": {
     "start": "react-app-rewired start",
     "build": "react-app-rewired build",
-    "test": "react-app-rewired test --env=jsdom",
+    "test": "node $NODE_DEBUG_OPTION node_modules/.bin/react-app-rewired test --env=jsdom",
     "eject": "react-app-rewired eject",
     "precommit": "standard && cargo fmt -- --write-mode=check && CI=true npm test",
     "prepush": "CI=true npm test"
@@ -30,6 +30,7 @@
     "husky": "^0.14.3",
     "jest-fetch-mock": "^1.5.0",
     "react-app-rewired": "^1.5.2",
+    "react-jss": "^8.4.0",
     "react-test-renderer": "^16.4.0",
     "standard": "^11.0.1"
   }

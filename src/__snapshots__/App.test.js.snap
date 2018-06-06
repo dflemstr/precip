@@ -2,26 +2,36 @@
 
 exports[`renders error 1`] = `
 <main
-  className="App-root-1"
+  className="App-root"
 >
+  <img
+    alt=""
+    className="App-background"
+    src="/mocked.jpg"
+    srcSet={
+      Array [
+        "/mocked-300.jpg 300w, /mocked-600.jpg 600w",
+      ]
+    }
+  />
   <div
-    className="MuiGrid-container-19 MuiGrid-spacing-xs-24-42 MuiGrid-justify-xs-center-36"
+    className="MuiGrid-container MuiGrid-spacing-xs-32 MuiGrid-justify-xs-center App-grid"
   >
     <div
-      className="MuiGrid-item-20"
+      className="MuiGrid-item MuiGrid-grid-xs-12"
     >
       <div
-        className="MuiPaper-root-111 MuiPaper-elevation2-115 MuiPaper-rounded-112 MuiCard-root-110"
+        className="MuiPaper-root MuiPaper-elevation2 MuiPaper-rounded MuiCard-root"
       >
         <div
-          className="MuiCardContent-root-168"
+          className="MuiCardContent-root"
         >
           <h1
-            className="MuiTypography-root-144 MuiTypography-headline-149 MuiTypography-gutterBottom-161"
+            className="MuiTypography-root MuiTypography-headline MuiTypography-gutterBottom"
           >
             <svg
               aria-hidden="true"
-              className="MuiSvgIcon-root-178 App-error-2"
+              className="MuiSvgIcon-root App-error"
               color={undefined}
               focusable="false"
               viewBox="0 0 24 24"
@@ -35,7 +45,7 @@ exports[`renders error 1`] = `
              Error
           </h1>
           <p
-            className="MuiTypography-root-144 MuiTypography-body1-153"
+            className="MuiTypography-root MuiTypography-body1"
           >
             failure foo bar baz test
           </p>
@@ -48,33 +58,70 @@ exports[`renders error 1`] = `
 
 exports[`renders moisture values 1`] = `
 <main
-  className="App-root-1"
+  className="App-root"
 >
+  <img
+    alt=""
+    className="App-background"
+    src="/mocked.jpg"
+    srcSet={
+      Array [
+        "/mocked-300.jpg 300w, /mocked-600.jpg 600w",
+      ]
+    }
+  />
   <div
-    className="MuiGrid-container-19 MuiGrid-spacing-xs-24-42"
+    className="MuiGrid-container MuiGrid-spacing-xs-32 App-grid"
   >
     <div
-      className="MuiGrid-item-20"
+      className="MuiGrid-item MuiGrid-grid-xs-12"
     >
       <div
-        className="MuiPaper-root-111 MuiPaper-elevation2-115 MuiPaper-rounded-112 MuiCard-root-110"
+        className="MuiPaper-root MuiPaper-elevation2 MuiPaper-rounded MuiCard-root"
       >
         <div
-          className="MuiCardHeader-root-138"
+          className="MuiCardContent-root"
+        >
+          <h1
+            className="MuiTypography-root MuiTypography-headline MuiTypography-gutterBottom"
+          >
+            Irrigation Controller
+          </h1>
+          <p
+            className="MuiTypography-root MuiTypography-body1"
+          >
+            Last updated: 
+            <time
+              dateTime={"2018-05-15T17:05:00.000Z"}
+            >
+              5 minutes ago
+            </time>
+          </p>
+        </div>
+      </div>
+    </div>
+    <div
+      className="MuiGrid-item"
+    >
+      <div
+        className="MuiPaper-root MuiPaper-elevation2 MuiPaper-rounded MuiCard-root"
+      >
+        <div
+          className="MuiCardHeader-root"
           subtitle={undefined}
         >
           <div
-            className="MuiCardHeader-content-141"
+            className="MuiCardHeader-content"
           >
             <span
-              className="MuiTypography-root-144 MuiTypography-headline-149 MuiCardHeader-title-142"
+              className="MuiTypography-root MuiTypography-headline MuiCardHeader-title"
             >
               Plant 2
             </span>
           </div>
         </div>
         <div
-          className="MuiCardContent-root-168"
+          className="MuiCardContent-root"
         >
           <div
             className="rv-xy-plot "
@@ -104,7 +151,7 @@ exports[`renders moisture values 1`] = `
             >
               <path
                 className="rv-xy-plot__series rv-xy-plot__series--line "
-                d="M400,45.129104661107796L400,60Z"
+                d="M0,7.578531356393427L0,60Z"
                 onClick={[Function]}
                 onContextMenu={[Function]}
                 onMouseOut={[Function]}
@@ -120,7 +167,7 @@ exports[`renders moisture values 1`] = `
               />
               <path
                 className="rv-xy-plot__series rv-xy-plot__series--line "
-                d="M400,45.31380060682425L400,60Z"
+                d="M0,8.516218465415449L0,60Z"
                 onClick={[Function]}
                 onContextMenu={[Function]}
                 onMouseOut={[Function]}
@@ -136,7 +183,7 @@ exports[`renders moisture values 1`] = `
               />
               <path
                 className="rv-xy-plot__series rv-xy-plot__series--line "
-                d="M400,45.61104349983478L400,60Z"
+                d="M0,10.025297768391958L0,60Z"
                 onClick={[Function]}
                 onContextMenu={[Function]}
                 onMouseOut={[Function]}
@@ -152,7 +199,7 @@ exports[`renders moisture values 1`] = `
               />
               <path
                 className="rv-xy-plot__series rv-xy-plot__series--line "
-                d="M400,45.87418535526462L400,60Z"
+                d="M0,11.361248726728086L0,60Z"
                 onClick={[Function]}
                 onContextMenu={[Function]}
                 onMouseOut={[Function]}
@@ -168,7 +215,7 @@ exports[`renders moisture values 1`] = `
               />
               <path
                 className="rv-xy-plot__series rv-xy-plot__series--line "
-                d="M400,46.472507529707485L400,60Z"
+                d="M0,14.398884381591863L0,60Z"
                 onClick={[Function]}
                 onContextMenu={[Function]}
                 onMouseOut={[Function]}
@@ -182,6 +229,28 @@ exports[`renders moisture values 1`] = `
                 }
                 transform="translate(0,0)"
               />
+              <g
+                className="rv-xy-plot__series rv-xy-plot__series--rect "
+                transform="translate(0,0)"
+              >
+                <rect
+                  height={60}
+                  onClick={[Function]}
+                  onContextMenu={[Function]}
+                  onMouseOut={[Function]}
+                  onMouseOver={[Function]}
+                  style={
+                    Object {
+                      "fill": "rgba(255,64,129,0.5)",
+                      "opacity": 1,
+                      "stroke": "rgba(255,64,129,0.5)",
+                    }
+                  }
+                  width={400}
+                  x={400}
+                  y={0}
+                />
+              </g>
               <g
                 className="rv-xy-plot__axis rv-xy-plot__axis--horizontal "
                 style={
@@ -243,7 +312,7 @@ exports[`renders moisture values 1`] = `
                         },
                       }
                     }
-                    transform="translate(75.94748676939308, 0)"
+                    transform="translate(0, 0)"
                   >
                     <line
                       className="rv-xy-plot__axis__tick__line"
@@ -291,7 +360,7 @@ exports[`renders moisture values 1`] = `
                       textAnchor="middle"
                       transform="translate(0, 14)"
                     >
-                      1940
+                      05:05
                     </text>
                   </g>
                   <g
@@ -311,7 +380,7 @@ exports[`renders moisture values 1`] = `
                         },
                       }
                     }
-                    transform="translate(158.6453886812003, 0)"
+                    transform="translate(80, 0)"
                   >
                     <line
                       className="rv-xy-plot__axis__tick__line"
@@ -359,7 +428,7 @@ exports[`renders moisture values 1`] = `
                       textAnchor="middle"
                       transform="translate(0, 14)"
                     >
-                      1960
+                      .200
                     </text>
                   </g>
                   <g
@@ -379,7 +448,7 @@ exports[`renders moisture values 1`] = `
                         },
                       }
                     }
-                    transform="translate(241.3432905930075, 0)"
+                    transform="translate(160, 0)"
                   >
                     <line
                       className="rv-xy-plot__axis__tick__line"
@@ -427,7 +496,7 @@ exports[`renders moisture values 1`] = `
                       textAnchor="middle"
                       transform="translate(0, 14)"
                     >
-                      1980
+                      .400
                     </text>
                   </g>
                   <g
@@ -447,7 +516,7 @@ exports[`renders moisture values 1`] = `
                         },
                       }
                     }
-                    transform="translate(324.0411925048147, 0)"
+                    transform="translate(240, 0)"
                   >
                     <line
                       className="rv-xy-plot__axis__tick__line"
@@ -495,7 +564,143 @@ exports[`renders moisture values 1`] = `
                       textAnchor="middle"
                       transform="translate(0, 14)"
                     >
-                      2000
+                      .600
+                    </text>
+                  </g>
+                  <g
+                    className="rv-xy-plot__axis__tick"
+                    style={
+                      Object {
+                        "fill": "#9e9e9e",
+                        "line": Object {
+                          "stroke": "none",
+                        },
+                        "text": Object {
+                          "fontFamily": "\\"Roboto\\", \\"Helvetica\\", \\"Arial\\", sans-serif",
+                          "fontSize": "0.875rem",
+                        },
+                        "ticks": Object {
+                          "fill": "#9e9e9e",
+                        },
+                      }
+                    }
+                    transform="translate(320, 0)"
+                  >
+                    <line
+                      className="rv-xy-plot__axis__tick__line"
+                      style={
+                        Object {
+                          "fill": "#9e9e9e",
+                          "line": Object {
+                            "stroke": "none",
+                          },
+                          "stroke": "none",
+                          "text": Object {
+                            "fontFamily": "\\"Roboto\\", \\"Helvetica\\", \\"Arial\\", sans-serif",
+                            "fontSize": "0.875rem",
+                          },
+                          "ticks": Object {
+                            "fill": "#9e9e9e",
+                          },
+                        }
+                      }
+                      x1={0}
+                      x2={0}
+                      y1={-0}
+                      y2={6}
+                    />
+                    <text
+                      className="rv-xy-plot__axis__tick__text"
+                      dy="0.72em"
+                      style={
+                        Object {
+                          "fill": "#9e9e9e",
+                          "fontFamily": "\\"Roboto\\", \\"Helvetica\\", \\"Arial\\", sans-serif",
+                          "fontSize": "0.875rem",
+                          "line": Object {
+                            "stroke": "none",
+                          },
+                          "text": Object {
+                            "fontFamily": "\\"Roboto\\", \\"Helvetica\\", \\"Arial\\", sans-serif",
+                            "fontSize": "0.875rem",
+                          },
+                          "ticks": Object {
+                            "fill": "#9e9e9e",
+                          },
+                        }
+                      }
+                      textAnchor="middle"
+                      transform="translate(0, 14)"
+                    >
+                      .800
+                    </text>
+                  </g>
+                  <g
+                    className="rv-xy-plot__axis__tick"
+                    style={
+                      Object {
+                        "fill": "#9e9e9e",
+                        "line": Object {
+                          "stroke": "none",
+                        },
+                        "text": Object {
+                          "fontFamily": "\\"Roboto\\", \\"Helvetica\\", \\"Arial\\", sans-serif",
+                          "fontSize": "0.875rem",
+                        },
+                        "ticks": Object {
+                          "fill": "#9e9e9e",
+                        },
+                      }
+                    }
+                    transform="translate(400, 0)"
+                  >
+                    <line
+                      className="rv-xy-plot__axis__tick__line"
+                      style={
+                        Object {
+                          "fill": "#9e9e9e",
+                          "line": Object {
+                            "stroke": "none",
+                          },
+                          "stroke": "none",
+                          "text": Object {
+                            "fontFamily": "\\"Roboto\\", \\"Helvetica\\", \\"Arial\\", sans-serif",
+                            "fontSize": "0.875rem",
+                          },
+                          "ticks": Object {
+                            "fill": "#9e9e9e",
+                          },
+                        }
+                      }
+                      x1={0}
+                      x2={0}
+                      y1={-0}
+                      y2={6}
+                    />
+                    <text
+                      className="rv-xy-plot__axis__tick__text"
+                      dy="0.72em"
+                      style={
+                        Object {
+                          "fill": "#9e9e9e",
+                          "fontFamily": "\\"Roboto\\", \\"Helvetica\\", \\"Arial\\", sans-serif",
+                          "fontSize": "0.875rem",
+                          "line": Object {
+                            "stroke": "none",
+                          },
+                          "text": Object {
+                            "fontFamily": "\\"Roboto\\", \\"Helvetica\\", \\"Arial\\", sans-serif",
+                            "fontSize": "0.875rem",
+                          },
+                          "ticks": Object {
+                            "fill": "#9e9e9e",
+                          },
+                        }
+                      }
+                      textAnchor="middle"
+                      transform="translate(0, 14)"
+                    >
+                      :01
                     </text>
                   </g>
                 </g>
@@ -503,14 +708,14 @@ exports[`renders moisture values 1`] = `
             </svg>
           </div>
           <div
-            className="MuiGrid-container-19 MuiGrid-spacing-xs-8-40"
+            className="MuiGrid-container MuiGrid-spacing-xs-8"
           >
             <div
-              className="MuiGrid-item-20"
+              className="MuiGrid-item"
             >
               <div
                 aria-valuenow={85}
-                className="MuiCircularProgress-root-169 MuiCircularProgress-colorPrimary-172 MuiCircularProgress-static-170"
+                className="MuiCircularProgress-root MuiCircularProgress-colorPrimary MuiCircularProgress-static"
                 role="progressbar"
                 style={
                   Object {
@@ -524,11 +729,11 @@ exports[`renders moisture values 1`] = `
                 }
               >
                 <svg
-                  className="MuiCircularProgress-svg-174"
+                  className="MuiCircularProgress-svg"
                   viewBox="0 0 50 50"
                 >
                   <circle
-                    className="MuiCircularProgress-circle-175 MuiCircularProgress-circleStatic-176"
+                    className="MuiCircularProgress-circle MuiCircularProgress-circleStatic"
                     cx={25}
                     cy={25}
                     fill="none"
@@ -544,7 +749,7 @@ exports[`renders moisture values 1`] = `
                 </svg>
               </div>
               <p
-                className="MuiTypography-root-144 MuiTypography-body1-153"
+                className="MuiTypography-root MuiTypography-body1"
                 style={
                   Object {
                     "display": "inline",
@@ -556,11 +761,11 @@ exports[`renders moisture values 1`] = `
               </p>
             </div>
             <div
-              className="MuiGrid-item-20"
+              className="MuiGrid-item"
             >
               <div
                 aria-valuenow={54}
-                className="MuiCircularProgress-root-169 MuiCircularProgress-colorPrimary-172 MuiCircularProgress-static-170"
+                className="MuiCircularProgress-root MuiCircularProgress-colorPrimary MuiCircularProgress-static"
                 role="progressbar"
                 style={
                   Object {
@@ -574,11 +779,11 @@ exports[`renders moisture values 1`] = `
                 }
               >
                 <svg
-                  className="MuiCircularProgress-svg-174"
+                  className="MuiCircularProgress-svg"
                   viewBox="0 0 50 50"
                 >
                   <circle
-                    className="MuiCircularProgress-circle-175 MuiCircularProgress-circleStatic-176"
+                    className="MuiCircularProgress-circle MuiCircularProgress-circleStatic"
                     cx={25}
                     cy={25}
                     fill="none"
@@ -594,7 +799,7 @@ exports[`renders moisture values 1`] = `
                 </svg>
               </div>
               <p
-                className="MuiTypography-root-144 MuiTypography-body1-153"
+                className="MuiTypography-root MuiTypography-body1"
                 style={
                   Object {
                     "display": "inline",
@@ -605,11 +810,11 @@ exports[`renders moisture values 1`] = `
               </p>
             </div>
             <div
-              className="MuiGrid-item-20"
+              className="MuiGrid-item"
             >
               <svg
                 aria-hidden="true"
-                className="MuiSvgIcon-root-178"
+                className="MuiSvgIcon-root"
                 color={undefined}
                 focusable="false"
                 style={
@@ -626,7 +831,7 @@ exports[`renders moisture values 1`] = `
                 </g>
               </svg>
               <p
-                className="MuiTypography-root-144 MuiTypography-body1-153"
+                className="MuiTypography-root MuiTypography-body1"
                 style={
                   Object {
                     "display": "inline",
