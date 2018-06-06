@@ -20,6 +20,8 @@ it('renders moisture values', (done) => {
       'minMoisture': 0.25,
       'maxMoisture': 0.9,
       'lastMoisture': 0.8,
+      'targetMinMoisture': 0.3,
+      'targetMaxMoisture': 0.8,
       'pumpRunning': [['2018-05-15T17:05:00Z', '2018-05-15T17:05:01Z']],
       'moistureTimeseries': {
         'measurementStart': ['2018-05-15T17:05:00Z'],

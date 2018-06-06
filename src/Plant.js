@@ -3,7 +3,9 @@ import { withTheme } from '@material-ui/core/styles'
 import Card from '@material-ui/core/Card'
 import CardHeader from '@material-ui/core/CardHeader'
 import CardContent from '@material-ui/core/CardContent'
-import { AreaSeries, Crosshair, XYPlot, XAxis, VerticalRectSeries } from 'react-vis'
+import {
+  AreaSeries, Crosshair, XYPlot, XAxis, VerticalRectSeries
+} from 'react-vis'
 import { default as chroma } from 'chroma-js'
 import 'react-vis/dist/style.css'
 import Typography from '@material-ui/core/Typography'
@@ -11,6 +13,7 @@ import CircularProgress from '@material-ui/core/CircularProgress'
 import Power from '@material-ui/icons/Power'
 import PropTypes from 'prop-types'
 import Grid from '@material-ui/core/Grid'
+import { min, max } from 'lodash'
 
 class Plant extends React.Component {
   constructor (props) {
@@ -44,13 +47,14 @@ class Plant extends React.Component {
   }
 
   render () {
-    const {title, subtitle, theme, module: {moistureTimeseries, minMoisture, maxMoisture, lastMoisture, pumpRunning}, ...props} = this.props
+    const {title, subtitle, theme, module: {moistureTimeseries, minMoisture, maxMoisture, lastMoisture, targetMinMoisture, targetMaxMoisture, pumpRunning}, ...props} = this.props
 
     const tickColor = theme.palette.grey['500']
     const colorBase = theme.palette.primary.light
     const colorRange = [
       colorBase,
-      chroma(colorBase).brighten().brighten().hex()
+      chroma(colorBase).brighten().brighten().hex(),
+      '#ff0000'
     ]
     const colorMark = chroma(theme.palette.secondary.light).alpha(0.5).css()
     const legendTextColor = theme.palette.common.white
@@ -58,6 +62,7 @@ class Plant extends React.Component {
     const crosshairValues = this.state.crosshairValues
 
     let moistureRatio = lastMoisture ? (lastMoisture - minMoisture) / (maxMoisture - minMoisture) : null
+    let moisturePadding = (maxMoisture - minMoisture) * 0.1
 
     let plot = null
 
@@ -69,16 +74,21 @@ class Plant extends React.Component {
       const p50s = data.p50.map((v, i) => ({x: xs[i], y: v}))
       const p75s = data.p75.map((v, i) => ({x: xs[i], y: v}))
       const maxs = data.max.map((v, i) => ({x: xs[i], y: v}))
-      const pumpings = pumpRunning.map(v => ({x: new Date(v[0]), x0: new Date(v[1]), y: minMoisture, y0: maxMoisture}))
+      const start = min(xs)
+      const end = max(xs)
+      const yAxisMin = Math.min(minMoisture - moisturePadding, targetMinMoisture - moisturePadding)
+      const yAxisMax = Math.max(maxMoisture + moisturePadding, targetMaxMoisture + moisturePadding)
+      const pumpings = pumpRunning.map(v => ({x: new Date(v[0]), x0: new Date(v[1]), y: yAxisMin, y0: yAxisMax}))
+
       plot = (
         <XYPlot
           width={400}
           height={100}
           xType='time-utc'
-          yDomain={[minMoisture, maxMoisture]}
+          yDomain={[yAxisMin, yAxisMax]}
           onMouseLeave={this._onMouseLeave}
           colorType='linear'
-          colorDomain={[0, 1]}
+          colorDomain={[0.0, 2.0]}
           colorRange={colorRange}
           margin={{left: 0, right: 0, top: 0, bottom: 40}}>
           <AreaSeries
@@ -106,6 +116,11 @@ class Plant extends React.Component {
             data={pumpings}
             colorType='literal'
             color={colorMark}
+          />
+          <VerticalRectSeries
+            data={[{x: end, x0: start, y: targetMinMoisture, y0: targetMaxMoisture}]}
+            colorType='literal'
+            color='rgba(0, 255, 0, 0.1)'
           />
           <XAxis
             tickTotal={6}

@@ -143,39 +143,7 @@ exports[`renders moisture values 1`] = `
             >
               <path
                 className="rv-xy-plot__series rv-xy-plot__series--line "
-                d="M0,7.578531356393427L0,60Z"
-                onClick={[Function]}
-                onContextMenu={[Function]}
-                onMouseOut={[Function]}
-                onMouseOver={[Function]}
-                style={
-                  Object {
-                    "fill": "rgb(222, 232, 255)",
-                    "opacity": 1,
-                    "stroke": "rgb(222, 232, 255)",
-                  }
-                }
-                transform="translate(0,0)"
-              />
-              <path
-                className="rv-xy-plot__series rv-xy-plot__series--line "
-                d="M0,8.516218465415449L0,60Z"
-                onClick={[Function]}
-                onContextMenu={[Function]}
-                onMouseOut={[Function]}
-                onMouseOver={[Function]}
-                style={
-                  Object {
-                    "fill": "rgb(197, 208, 242)",
-                    "opacity": 1,
-                    "stroke": "rgb(197, 208, 242)",
-                  }
-                }
-                transform="translate(0,0)"
-              />
-              <path
-                className="rv-xy-plot__series rv-xy-plot__series--line "
-                d="M0,10.025297768391958L0,60Z"
+                d="M0,11.315442796994525L0,60Z"
                 onClick={[Function]}
                 onContextMenu={[Function]}
                 onMouseOut={[Function]}
@@ -191,7 +159,23 @@ exports[`renders moisture values 1`] = `
               />
               <path
                 className="rv-xy-plot__series rv-xy-plot__series--line "
-                d="M0,11.361248726728086L0,60Z"
+                d="M0,12.09684872117954L0,60Z"
+                onClick={[Function]}
+                onContextMenu={[Function]}
+                onMouseOut={[Function]}
+                onMouseOver={[Function]}
+                style={
+                  Object {
+                    "fill": "rgb(159, 171, 223)",
+                    "opacity": 1,
+                    "stroke": "rgb(159, 171, 223)",
+                  }
+                }
+                transform="translate(0,0)"
+              />
+              <path
+                className="rv-xy-plot__series rv-xy-plot__series--line "
+                d="M0,13.354414806993304L0,60Z"
                 onClick={[Function]}
                 onContextMenu={[Function]}
                 onMouseOut={[Function]}
@@ -207,7 +191,23 @@ exports[`renders moisture values 1`] = `
               />
               <path
                 className="rv-xy-plot__series rv-xy-plot__series--line "
-                d="M0,14.398884381591863L0,60Z"
+                d="M0,14.467707272273408L0,60Z"
+                onClick={[Function]}
+                onContextMenu={[Function]}
+                onMouseOut={[Function]}
+                onMouseOver={[Function]}
+                style={
+                  Object {
+                    "fill": "rgb(134, 146, 210)",
+                    "opacity": 1,
+                    "stroke": "rgb(134, 146, 210)",
+                  }
+                }
+                transform="translate(0,0)"
+              />
+              <path
+                className="rv-xy-plot__series rv-xy-plot__series--line "
+                d="M0,16.99907031799323L0,60Z"
                 onClick={[Function]}
                 onContextMenu={[Function]}
                 onMouseOut={[Function]}
@@ -241,6 +241,28 @@ exports[`renders moisture values 1`] = `
                   width={400}
                   x={400}
                   y={0}
+                />
+              </g>
+              <g
+                className="rv-xy-plot__series rv-xy-plot__series--rect "
+                transform="translate(0,0)"
+              >
+                <rect
+                  height={38.46153846153846}
+                  onClick={[Function]}
+                  onContextMenu={[Function]}
+                  onMouseOut={[Function]}
+                  onMouseOver={[Function]}
+                  style={
+                    Object {
+                      "fill": "rgba(0, 255, 0, 0.1)",
+                      "opacity": 1,
+                      "stroke": "rgba(0, 255, 0, 0.1)",
+                    }
+                  }
+                  width={0}
+                  x={0}
+                  y={12.692307692307693}
                 />
               </g>
               <g
