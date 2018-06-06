@@ -8,11 +8,7 @@ exports[`renders error 1`] = `
     alt=""
     className="App-background"
     src="/mocked.jpg"
-    srcSet={
-      Array [
-        "/mocked-300.jpg 300w, /mocked-600.jpg 600w",
-      ]
-    }
+    srcSet="/mocked-300.jpg 300w, /mocked-600.jpg 600w"
   />
   <div
     className="MuiGrid-container MuiGrid-spacing-xs-32 MuiGrid-justify-xs-center App-grid"
@@ -64,11 +60,7 @@ exports[`renders moisture values 1`] = `
     alt=""
     className="App-background"
     src="/mocked.jpg"
-    srcSet={
-      Array [
-        "/mocked-300.jpg 300w, /mocked-600.jpg 600w",
-      ]
-    }
+    srcSet="/mocked-300.jpg 300w, /mocked-600.jpg 600w"
   />
   <div
     className="MuiGrid-container MuiGrid-spacing-xs-32 App-grid"
