@@ -1,27 +1,30 @@
-[plant.19f513bc-9b69-4284-9811-c0c457d21555]
-name = "Plant 1"
-max_moisture = 1.2
-min_moisture = 1.15
+[plant.a9ccd14f-eedf-48a7-bd6c-9fefab0ddeea]
+name = "Basil"
+description = "Basilikum: Half shade, lots of water, normal fertilization, edible"
+max_moisture = 1.4
+min_moisture = 1.3
 moisture_channel = 0
 pump_channel = 18
 
-[plant.71f3abbf-eda2-4b1f-a9a2-8af7f290e0a6]
-name = "Plant 2"
+[plant.bb789398-6001-4a00-97fc-5dfeab297509]
+name = "French Tarragon"
+description = "Artemisia Dracunculus: Sunny/half shade, not too much water, normal fertilization, edible"
 max_moisture = 1.2
 min_moisture = 1.15
 moisture_channel = 1
 pump_channel = 23
 
-[plant.107ddad5-9274-458c-970e-1f6efefa9148]
-name = "Plant 3"
-max_moisture = 1.2
-min_moisture = 1.15
+[plant.641e4ff8-5a2b-4450-8ada-7a52ca1f9b0f]
+name = "Chives"
+description = "Allium Schoenoprasum: Sunny/half shade, normal amount of water, normal fertilization, edible"
+max_moisture = 1.3
+min_moisture = 1.25
 moisture_channel = 2
 pump_channel = 24
 
-[plant.d4b61675-bfb1-4828-8a08-b99d32eb5e51]
-name = "Plant 4"
-max_moisture = 1.2
-min_moisture = 1.15
-moisture_channel = 3
-pump_channel = 25
+#[plant.d4b61675-bfb1-4828-8a08-b99d32eb5e51]
+#name = "Plant 4"
+#max_moisture = 1.2
+#min_moisture = 1.15
+#moisture_channel = 3
+#pump_channel = 25
