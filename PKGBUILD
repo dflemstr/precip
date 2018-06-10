@@ -1,6 +1,6 @@
 # Maintainer: David Flemström <david.flemstrom@gmail.com>
 pkgname=precip
-pkgver=0.1.0
+pkgver=0.1.0.r77.g29478a9
 pkgrel=1
 pkgdesc='irrigation control system'
 arch=('x86_64' 'armv7h')
@@ -25,10 +25,10 @@ build() {
 package() {
   cd "$pkgname"
   mkdir -p "$pkgdir/etc/precip"
-  mkdir -p "$pkgdir/etc/systemd"
+  mkdir -p "$pkgdir/usr/lib/systemd/system"
   mkdir -p "$pkgdir/usr/bin"
 
-  install -Dm644 precip.service "$pkgdir/etc/systemd/system"
+  install -Dm644 precip.service "$pkgdir/usr/lib/systemd/system"
   install -Dm644 config.toml "$pkgdir/etc/precip"
   install -Dm755 target/release/precip "$pkgdir/usr/bin"
 }
