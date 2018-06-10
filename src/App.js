@@ -7,28 +7,29 @@ import Typography from '@material-ui/core/Typography'
 import Card from '@material-ui/core/Card'
 import CardContent from '@material-ui/core/CardContent'
 import { withStyles } from '@material-ui/core/styles'
-import backgroundImage from './background.jpg?sizes[]=300,sizes[]=600,sizes[]=1200,sizes[]=2000'
+import backgroundImage from './background.jpg'
 import Moment from 'react-moment'
 import { sortBy } from 'lodash/collection'
 
 const styles = theme => ({
   root: {
-    flexGrow: 1,
-    width: '100%',
-    height: '100%'
-  },
-  background: {
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    objectFit: 'cover',
     width: '100%',
     height: '100%',
-    zIndex: '-200'
+    backgroundImage: `url(${backgroundImage.src})`,
+    backgroundSize: 'cover',
+    paddingTop: '1em',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'flex-start',
+    overflow: 'auto'
   },
   grid: {
     maxWidth: '960px',
-    margin: '0 auto'
+    flexWrap: 'wrap'
+  },
+  gridItem: {
+    flexBasis: 0,
+    flex: 1
   },
   error: {
     verticalAlign: 'text-top'
@@ -97,15 +98,11 @@ class App extends React.Component {
 
   render () {
     const {classes} = this.props
-    const background =
-      <img className={classes.background} alt='' src={backgroundImage.src} srcSet={backgroundImage.srcSet} />
-
     if (this.state.error) {
       return (<main className={classes.root}>
-        {background}
         <Grid className={classes.grid} container justify='center' spacing={32}>
-          <Grid item xs={12}>
-            <Card>
+          <Grid className={classes.gridItem} item xs={12}>
+            <Card raised>
               <CardContent>
                 <Typography gutterBottom variant='headline'>
                   <Error className={classes.error} /> Error
@@ -117,14 +114,13 @@ class App extends React.Component {
         </Grid>
       </main>)
     } else if (this.state.data) {
-      let items = this.state.data.modules.map(module => (<Grid key={module.id} item>
-        <Plant title={module.name} module={module} />
+      let items = this.state.data.modules.map(module => (<Grid key={module.id} className={classes.gridItem} item>
+        <Plant module={module} />
       </Grid>))
       return (<main className={classes.root}>
-        {background}
         <Grid className={classes.grid} container spacing={32}>
           <Grid item xs={12}>
-            <Card>
+            <Card raised>
               <CardContent>
                 <Typography gutterBottom variant='headline'>
                   Irrigation Controller

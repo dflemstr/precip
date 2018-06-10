@@ -1,10 +1,10 @@
 import React from 'react'
-import { withTheme } from '@material-ui/core/styles'
+import { withStyles, withTheme } from '@material-ui/core/styles'
 import Card from '@material-ui/core/Card'
 import CardHeader from '@material-ui/core/CardHeader'
 import CardContent from '@material-ui/core/CardContent'
 import {
-  AreaSeries, Crosshair, XYPlot, XAxis, VerticalRectSeries
+  AreaSeries, Crosshair, XAxis, VerticalRectSeries, FlexibleWidthXYPlot
 } from 'react-vis'
 import { default as chroma } from 'chroma-js'
 import 'react-vis/dist/style.css'
@@ -14,6 +14,13 @@ import Power from '@material-ui/icons/Power'
 import PropTypes from 'prop-types'
 import Grid from '@material-ui/core/Grid'
 import { min, max } from 'lodash'
+
+const styles = theme => ({
+  card: {
+    minWidth: 275,
+    maxWidth: 448
+  }
+})
 
 class Plant extends React.Component {
   constructor (props) {
@@ -47,7 +54,7 @@ class Plant extends React.Component {
   }
 
   render () {
-    const {title, subtitle, theme, module: {moistureTimeseries, minMoisture, maxMoisture, lastMoisture, targetMinMoisture, targetMaxMoisture, pumpRunning}, ...props} = this.props
+    const {theme, classes, module, ...props} = this.props
 
     const tickColor = theme.palette.grey['500']
     const colorBase = theme.palette.primary.light
@@ -61,13 +68,13 @@ class Plant extends React.Component {
 
     const crosshairValues = this.state.crosshairValues
 
-    let moistureRatio = lastMoisture ? (lastMoisture - minMoisture) / (maxMoisture - minMoisture) : null
-    let moisturePadding = (maxMoisture - minMoisture) * 0.1
+    let moistureRatio = module.lastMoisture ? (module.lastMoisture - module.minMoisture) / (module.maxMoisture - module.minMoisture) : null
+    let moisturePadding = (module.maxMoisture - module.minMoisture) * 0.1
 
     let plot = null
 
-    if (moistureTimeseries) {
-      const data = moistureTimeseries
+    if (module.moistureTimeseries) {
+      const data = module.moistureTimeseries
       const xs = data.measurementStart.map(v => new Date(v))
       const mins = data.min.map((v, i) => ({x: xs[i], y: v}))
       const p25s = data.p25.map((v, i) => ({x: xs[i], y: v}))
@@ -76,13 +83,12 @@ class Plant extends React.Component {
       const maxs = data.max.map((v, i) => ({x: xs[i], y: v}))
       const start = min(xs)
       const end = max(xs)
-      const yAxisMin = Math.min(minMoisture - moisturePadding, targetMinMoisture - moisturePadding)
-      const yAxisMax = Math.max(maxMoisture + moisturePadding, targetMaxMoisture + moisturePadding)
-      const pumpings = pumpRunning.map(v => ({x: new Date(v[0]), x0: new Date(v[1]), y: yAxisMin, y0: yAxisMax}))
+      const yAxisMin = Math.min(module.minMoisture - moisturePadding, module.targetMinMoisture - moisturePadding)
+      const yAxisMax = Math.max(module.maxMoisture + moisturePadding, module.targetMaxMoisture + moisturePadding)
+      const pumpings = module.pumpRunning.map(v => ({x: new Date(v[0]), x0: new Date(v[1]), y: yAxisMin, y0: yAxisMax}))
 
       plot = (
-        <XYPlot
-          width={400}
+        <FlexibleWidthXYPlot
           height={100}
           xType='time-utc'
           yDomain={[yAxisMin, yAxisMax]}
@@ -118,7 +124,7 @@ class Plant extends React.Component {
             color={colorMark}
           />
           <VerticalRectSeries
-            data={[{x: end, x0: start, y: targetMinMoisture, y0: targetMaxMoisture}]}
+            data={[{x: end, x0: start, y: module.targetMinMoisture, y0: module.targetMaxMoisture}]}
             colorType='literal'
             color='rgba(0, 255, 0, 0.1)'
           />
@@ -150,12 +156,15 @@ class Plant extends React.Component {
             </div>
           </Crosshair>
           }
-        </XYPlot>)
+        </FlexibleWidthXYPlot>)
     }
 
-    return (<Card {...props}>
-      <CardHeader title={title} subtitle={subtitle} />
+    return (<Card className={classes.card} raised {...props}>
+      <CardHeader title={module.name} />
       <CardContent>
+        <Typography gutterBottom color='textSecondary'>
+          {module.description}
+        </Typography>
         {plot}
 
         <Grid container spacing={8}>
@@ -192,8 +201,6 @@ class Plant extends React.Component {
 }
 
 Plant.propTypes = {
-  title: PropTypes.string.isRequired,
-  subtitle: PropTypes.string, // TODO: make required?
   module: PropTypes.shape({
     minMoisture: PropTypes.number.isRequired,
     maxMoisture: PropTypes.number.isRequired,
@@ -209,4 +216,4 @@ Plant.propTypes = {
   })
 }
 
-export default withTheme()(Plant)
+export default withTheme()(withStyles(styles)(Plant))
