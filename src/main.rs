@@ -82,11 +82,11 @@ fn main() -> Result<(), failure::Error> {
     let bmp280 = i2cdev_bmp280::BMP280::new(
         bmp280_i2c_dev,
         i2cdev_bmp280::BMP280Settings {
-            compensation: i2cdev_bmp280::BMP280CompensationAlgorithm::B64,
+            compensation: i2cdev_bmp280::BMP280CompensationAlgorithm::Float,
             t_sb: i2cdev_bmp280::BMP280Timing::ms0_5,
-            iir_filter_coeff: i2cdev_bmp280::BMP280FilterCoefficient::Medium,
-            osrs_t: i2cdev_bmp280::BMP280TemperatureOversampling::x1,
-            osrs_p: i2cdev_bmp280::BMP280PressureOversampling::StandardResolution,
+            iir_filter_coeff: i2cdev_bmp280::BMP280FilterCoefficient::UltraHigh,
+            osrs_t: i2cdev_bmp280::BMP280TemperatureOversampling::x16,
+            osrs_p: i2cdev_bmp280::BMP280PressureOversampling::UltraHighResolution,
             power_mode: i2cdev_bmp280::BMP280PowerMode::NormalMode,
         },
     )?;
