@@ -7,7 +7,7 @@ Environment="RUST_LOG=precip=info"
 Environment="AWS_SHARED_CREDENTIALS_FILE=/etc/precip/aws-credentials"
 Environment="DATABASE_URL=postgres://localhost/precip"
 Environment="PRECIP_CONFIG=/etc/precip/config.toml"
-ExecStart=/usr/local/bin/precip -s
+ExecStart=/usr/bin/precip -s
 User=precip
 
 [Install]
