@@ -8,7 +8,6 @@ Environment="AWS_SHARED_CREDENTIALS_FILE=/etc/precip/aws-credentials"
 Environment="DATABASE_URL=postgres://localhost/precip"
 Environment="PRECIP_CONFIG=/etc/precip/config.toml"
 ExecStart=/usr/bin/precip -s
-User=precip
 
 [Install]
 WantedBy=multi-user.target
