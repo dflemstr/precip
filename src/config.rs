@@ -10,6 +10,7 @@ pub struct Config {
 #[derive(Debug, Deserialize)]
 pub struct Plant {
     pub name: String,
+    pub description: String,
     pub moisture_channel: u8,
     pub pump_channel: u8,
     pub min_moisture: f64,

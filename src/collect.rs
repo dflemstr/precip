@@ -27,6 +27,7 @@ pub struct State {
 pub struct Module {
     pub id: String,
     pub name: String,
+    pub description: String,
     pub running: bool,
     pub force_running: bool,
     pub min_moisture: f64,
@@ -73,6 +74,7 @@ impl State {
                 Module {
                     id: module.uuid.to_string(),
                     name: module.name.to_owned(),
+                    description: module.description.to_owned(),
                     running: false,
                     force_running: false,
                     min_moisture: 0.0,

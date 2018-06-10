@@ -277,6 +277,7 @@ fn load_modules(
                 id: db_module.id,
                 uuid: *uuid,
                 name: plant.name.clone(),
+                description: plant.description.clone(),
                 min_moisture: plant.min_moisture,
                 max_moisture: plant.max_moisture,
                 moisture_channel: match plant.moisture_channel {
