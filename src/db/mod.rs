@@ -66,6 +66,24 @@ impl Db {
         Ok(())
     }
 
+    pub fn insert_global_sample(
+        &self,
+        created: chrono::DateTime<chrono::Utc>,
+        temperature: f64,
+    ) -> Result<(), failure::Error> {
+        let conn = self.0.get()?;
+        let new_sample = model::NewGlobalSample {
+            created,
+            temperature,
+        };
+
+        diesel::insert_into(schema::global_sample::table)
+            .values(&new_sample)
+            .execute(&*conn)?;
+
+        Ok(())
+    }
+
     pub fn insert_pump_event(
         &self,
         module_id: i32,
@@ -103,6 +121,12 @@ impl Db {
     pub fn collect_stats(&self) -> Result<Vec<model::Stats>, failure::Error> {
         let conn = self.0.get()?;
         let result = diesel::sql_query(include_str!("stats_query.sql")).load(&*conn)?;
+        Ok(result)
+    }
+
+    pub fn collect_global_stats(&self) -> Result<model::GlobalStats, failure::Error> {
+        let conn = self.0.get()?;
+        let result = diesel::sql_query(include_str!("global_stats_query.sql")).get_result(&*conn)?;
         Ok(result)
     }
 }

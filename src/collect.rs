@@ -19,6 +19,7 @@ use model;
 #[serde(rename_all = "camelCase")]
 pub struct State {
     pub created: chrono::DateTime<chrono::Utc>,
+    pub temperature: f64,
     pub modules: Vec<Module>,
 }
 
@@ -58,6 +59,7 @@ impl State {
         timeseries_samples: &[TS],
         pump_events: &[PE],
         stats: &[S],
+        global_stats: &db::model::GlobalStats,
     ) -> State
     where
         M: borrow::Borrow<model::ModuleConfig>,
@@ -65,6 +67,7 @@ impl State {
         PE: borrow::Borrow<db::model::PumpEvent>,
         S: borrow::Borrow<db::model::Stats>,
     {
+        let temperature = global_stats.temperature;
         let mut modules = collections::HashMap::new();
 
         for module in loaded_modules {
@@ -142,7 +145,11 @@ impl State {
         }
         let modules = modules.into_iter().map(|(_, v)| v).collect();
 
-        State { created, modules }
+        State {
+            created,
+            temperature,
+            modules,
+        }
     }
 }
 

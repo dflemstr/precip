@@ -1,4 +1,12 @@
 table! {
+    global_sample (id) {
+        id -> Int4,
+        created -> Timestamptz,
+        temperature -> Float8,
+    }
+}
+
+table! {
     module (id) {
         id -> Int4,
         uuid -> Uuid,
@@ -27,4 +35,4 @@ table! {
 joinable!(pump_event -> module (module_id));
 joinable!(sample -> module (module_id));
 
-allow_tables_to_appear_in_same_query!(module, pump_event, sample,);
+allow_tables_to_appear_in_same_query!(global_sample, module, pump_event, sample,);

@@ -161,7 +161,7 @@ class Plant extends React.Component {
     }
 
     return (<Card className={classes.card} raised {...props}>
-      <CardHeader title={module.name} subheader={<ReactMarkdown source={module.description}/>} />
+      <CardHeader title={module.name} subheader={<ReactMarkdown source={module.description} />} />
       <CardContent>
         {plot}
 

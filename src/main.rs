@@ -9,6 +9,8 @@ extern crate dotenv;
 extern crate failure;
 extern crate futures_await as futures;
 extern crate i2cdev;
+extern crate i2cdev_bmp280;
+extern crate i2csensors;
 #[macro_use]
 extern crate slog;
 extern crate r2d2;
@@ -73,8 +75,21 @@ fn main() -> Result<(), failure::Error> {
     let database_url = env::var("DATABASE_URL")?;
     let db = sync::Arc::new(db::Db::connect(log.clone(), &database_url)?);
 
-    let i2c_dev = i2cdev::linux::LinuxI2CDevice::new("/dev/i2c-1", 0x48)?;
-    let dac = ads1x15::Ads1x15::new_ads1115(i2c_dev);
+    let dac1_i2c_dev = i2cdev::linux::LinuxI2CDevice::new("/dev/i2c-1", 0x48)?;
+    let dac1 = ads1x15::Ads1x15::new_ads1115(dac1_i2c_dev);
+
+    let bmp280_i2c_dev = i2cdev_bmp280::get_linux_bmp280_i2c_device().unwrap();
+    let bmp280 = i2cdev_bmp280::BMP280::new(
+        bmp280_i2c_dev,
+        i2cdev_bmp280::BMP280Settings {
+            compensation: i2cdev_bmp280::BMP280CompensationAlgorithm::B64,
+            t_sb: i2cdev_bmp280::BMP280Timing::ms0_5,
+            iir_filter_coeff: i2cdev_bmp280::BMP280FilterCoefficient::Medium,
+            osrs_t: i2cdev_bmp280::BMP280TemperatureOversampling::x1,
+            osrs_p: i2cdev_bmp280::BMP280PressureOversampling::StandardResolution,
+            power_mode: i2cdev_bmp280::BMP280PowerMode::NormalMode,
+        },
+    )?;
 
     let loaded_modules = sync::Arc::new(load_modules(log.clone(), &config, &db)?);
 
@@ -92,7 +107,7 @@ fn main() -> Result<(), failure::Error> {
     };
 
     tokio::run(futures::future::lazy(move || {
-        let sampler = sync::Arc::new(sensors::Ads1x15Sampler::start(dac).unwrap());
+        let sampler = sync::Arc::new(sensors::Ads1x15Sampler::start(dac1).unwrap());
 
         tokio::spawn(
             collect_stats_job(log.clone(), loaded_modules.clone(), db.clone(), state_tx).map_err({
@@ -100,6 +115,11 @@ fn main() -> Result<(), failure::Error> {
                 move |e| error!(log, "collect job failed: {}", e)
             }),
         );
+
+        tokio::spawn(sample_global_job(log.clone(), bmp280, db.clone()).map_err({
+            let log = log.clone();
+            move |e| error!(log, "sampling module failed: {}", e)
+        }));
 
         for module in &*loaded_modules {
             tokio::spawn(
@@ -167,6 +187,29 @@ fn init_log(options: &options::Options) -> Result<slog::Logger, failure::Error> 
         .fuse();
 
     Ok(slog::Logger::root(drain, o!()))
+}
+
+#[async]
+fn sample_global_job<D>(
+    log: slog::Logger,
+    mut bmp280: i2cdev_bmp280::BMP280<D>,
+    db: sync::Arc<db::Db>,
+) -> Result<(), failure::Error>
+where
+    D: i2cdev::core::I2CDevice + Sized + 'static,
+    D::Error: Send + Sync + 'static,
+{
+    #[async]
+    for _ in util::every(
+        log.clone(),
+        "measure temperature".to_owned(),
+        time::Duration::from_secs(1),
+    ) {
+        let now = chrono::Utc::now();
+        let temperature = i2csensors::Thermometer::temperature_celsius(&mut bmp280)? as f64;
+        db.insert_global_sample(now, temperature)?;
+    }
+    Ok(())
 }
 
 #[async]
@@ -246,6 +289,7 @@ fn collect_stats_job(
         let timeseries_samples = db.collect_timeseries_samples()?;
         let pump_events = db.collect_pump_events()?;
         let stats = db.collect_stats()?;
+        let global_stats = db.collect_global_stats()?;
         let state = collect::State::new(
             log.clone(),
             created,
@@ -253,6 +297,7 @@ fn collect_stats_job(
             &timeseries_samples,
             &pump_events,
             &stats,
+            &global_stats,
         );
 
         await!(state_tx.send(state))?;

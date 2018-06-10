@@ -31,6 +31,12 @@ slog-scope = "4.0.1"
 slog-async = "2.3.0"
 slog-envlogger = "2.1.0"
 structopt = "0.2.10"
+i2cdev-bmp280 = "0.1.4"
+i2csensors = "0.1.3"
 
 [profile.release]
 lto = true
+
+[patch.crates-io]
+i2csensors = { git = "https://github.com/dflemstr/i2cdev-sensors.git", branch = "upgrade-i2cdev" }
+i2cdev-bmp280 = { git = "https://github.com/dflemstr/i2cdev-sensors.git", branch = "upgrade-i2cdev" }

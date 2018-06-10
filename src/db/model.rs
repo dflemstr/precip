@@ -5,6 +5,7 @@ use diesel::sql_types::Float8;
 use diesel::sql_types::Integer;
 use diesel::sql_types::Timestamptz;
 
+use super::schema::global_sample;
 use super::schema::module;
 use super::schema::pump_event;
 use super::schema::sample;
@@ -71,6 +72,12 @@ pub struct Stats {
     pub last_moisture: f64,
 }
 
+#[derive(Debug, QueryableByName)]
+pub struct GlobalStats {
+    #[sql_type = "Float8"]
+    pub temperature: f64,
+}
+
 #[derive(Debug, Identifiable, Associations, Queryable, QueryableByName)]
 #[table_name = "pump_event"]
 pub struct PumpEvent {
@@ -86,4 +93,19 @@ pub struct NewPumpEvent {
     pub created: chrono::DateTime<chrono::Utc>,
     pub module_id: i32,
     pub pump_running: bool,
+}
+
+#[derive(Debug, Identifiable, Associations, Queryable)]
+#[table_name = "global_sample"]
+pub struct GlobalSample {
+    pub id: i32,
+    pub created: chrono::DateTime<chrono::Utc>,
+    pub temperature: f64,
+}
+
+#[derive(Debug, Insertable, AsChangeset)]
+#[table_name = "global_sample"]
+pub struct NewGlobalSample {
+    pub created: chrono::DateTime<chrono::Utc>,
+    pub temperature: f64,
 }
