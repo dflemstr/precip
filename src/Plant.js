@@ -1,5 +1,5 @@
 import React from 'react'
-import { withStyles, withTheme } from '@material-ui/core/styles'
+import { withStyles } from '@material-ui/core/styles'
 import Card from '@material-ui/core/Card'
 import CardHeader from '@material-ui/core/CardHeader'
 import CardContent from '@material-ui/core/CardContent'
@@ -14,6 +14,7 @@ import Power from '@material-ui/icons/Power'
 import PropTypes from 'prop-types'
 import Grid from '@material-ui/core/Grid'
 import { min, max } from 'lodash'
+import ReactMarkdown from 'react-markdown'
 
 const styles = theme => ({
   card: {
@@ -160,11 +161,8 @@ class Plant extends React.Component {
     }
 
     return (<Card className={classes.card} raised {...props}>
-      <CardHeader title={module.name} />
+      <CardHeader title={module.name} subheader={<ReactMarkdown source={module.description}/>} />
       <CardContent>
-        <Typography gutterBottom color='textSecondary'>
-          {module.description}
-        </Typography>
         {plot}
 
         <Grid container spacing={8}>
@@ -216,4 +214,4 @@ Plant.propTypes = {
   })
 }
 
-export default withTheme()(withStyles(styles)(Plant))
+export default withStyles(styles, {withTheme: true})(Plant)
