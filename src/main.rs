@@ -18,6 +18,7 @@ extern crate rusoto_core;
 extern crate rusoto_s3;
 extern crate serde;
 extern crate slog_async;
+extern crate slog_envlogger;
 extern crate slog_journald;
 extern crate slog_scope;
 extern crate slog_stdlog;
@@ -25,6 +26,8 @@ extern crate slog_term;
 #[macro_use]
 extern crate serde_derive;
 extern crate serde_json;
+#[macro_use]
+extern crate structopt;
 extern crate sysfs_gpio;
 extern crate tokio;
 extern crate toml;
@@ -43,14 +46,17 @@ pub mod collect;
 pub mod config;
 pub mod db;
 pub mod model;
+pub mod options;
 pub mod pumps;
 pub mod sensors;
 pub mod util;
 
 fn main() -> Result<(), failure::Error> {
     use std::io::Read;
+    use structopt::StructOpt;
 
-    let log = init_log()?;
+    let options = options::Options::from_args();
+    let log = init_log(&options)?;
     let _log_scope = slog_scope::set_global_logger(log.clone());
     slog_stdlog::init()?;
 
@@ -115,7 +121,7 @@ fn main() -> Result<(), failure::Error> {
     Ok(())
 }
 
-fn init_log() -> Result<slog::Logger, failure::Error> {
+fn init_log(options: &options::Options) -> Result<slog::Logger, failure::Error> {
     use slog::Drain;
 
     // Work-around 'term' issue; for example lacking 256color support
@@ -127,12 +133,37 @@ fn init_log() -> Result<slog::Logger, failure::Error> {
     }
 
     let decorator = slog_term::TermDecorator::new().build();
-    let term_drain = slog_term::FullFormat::new(decorator).build().fuse();
-    let journald_drain = slog::LevelFilter::new(slog_journald::JournaldDrain, slog::Level::Info);
+    let term_drain: Box<slog::Drain<Ok = (), Err = slog::Never> + Send> = if options.silent {
+        Box::new(slog::Discard)
+    } else {
+        let drain = slog_term::FullFormat::new(decorator).build().ignore_res();
+        if options.debug {
+            Box::new(drain)
+        } else {
+            let total = options.verbose as i32 - options.quiet as i32;
 
-    let drain = slog_async::Async::new(
+            if total < -3 {
+                Box::new(slog::Discard)
+            } else {
+                let level = match total {
+                    -3 => slog::Level::Critical,
+                    -2 => slog::Level::Error,
+                    -1 => slog::Level::Warning,
+                    0 => slog::Level::Info,
+                    1 => slog::Level::Debug,
+                    _ => slog::Level::Trace,
+                };
+
+                Box::new(slog::LevelFilter::new(drain, level).fuse())
+            }
+        }
+    };
+
+    let journald_drain = slog_journald::JournaldDrain;
+
+    let drain = slog_async::Async::new(slog_envlogger::new(
         slog::Duplicate::new(term_drain, journald_drain).ignore_res(),
-    ).build()
+    )).build()
         .fuse();
 
     Ok(slog::Logger::root(drain, o!()))

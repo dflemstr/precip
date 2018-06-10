@@ -29,6 +29,8 @@ slog-stdlog = "3.0.2"
 slog-term = "2.4.0"
 slog-scope = "4.0.1"
 slog-async = "2.3.0"
+slog-envlogger = "2.1.0"
+structopt = "0.2.10"
 
 [profile.release]
 lto = true
