@@ -3,6 +3,7 @@ use diesel;
 use failure;
 use r2d2;
 use r2d2_diesel;
+use slog;
 use uuid;
 
 use diesel::prelude::*;
@@ -13,13 +14,13 @@ pub mod schema;
 pub struct Db(r2d2::Pool<r2d2_diesel::ConnectionManager<diesel::pg::PgConnection>>);
 
 impl Db {
-    pub fn connect(url: &str) -> Result<Self, failure::Error> {
-        debug!("connecting to DB url: {:?}", url);
+    pub fn connect(log: slog::Logger, url: &str) -> Result<Self, failure::Error> {
+        debug!(log, "connecting to DB url: {:?}", url);
         let pool = r2d2::Pool::builder().build(r2d2_diesel::ConnectionManager::new(url))?;
 
         // Check that we can get a connection; fail early
         pool.get()?;
-        debug!("connected");
+        debug!(log, "connected");
 
         Ok(Db(pool))
     }

@@ -10,6 +10,7 @@ use std::borrow;
 use std::collections;
 
 use chrono;
+use slog;
 
 use db;
 use model;
@@ -50,6 +51,7 @@ pub struct Timeseries<A> {
 
 impl State {
     pub fn new<M, TS, PE, S>(
+        log: slog::Logger,
         created: chrono::DateTime<chrono::Utc>,
         loaded_modules: &[M],
         timeseries_samples: &[TS],
@@ -110,7 +112,11 @@ impl State {
                     {
                         module.pump_running.push([start, pump_event.created]);
                     } else {
-                        warn!("Pump event stop running without matching start running event: ");
+                        warn!(
+                            log,
+                            "Pump event stop running without matching start running event: {}",
+                            pump_event.id
+                        );
                     }
                 }
             }
@@ -140,6 +146,7 @@ impl State {
 
 #[async]
 pub fn upload_states_to_s3(
+    log: slog::Logger,
     states: futures::sync::mpsc::Receiver<State>,
 ) -> Result<(), failure::Error> {
     use rusoto_s3::S3;
@@ -159,9 +166,9 @@ pub fn upload_states_to_s3(
             acl: Some("public-read".to_owned()),
             ..rusoto_s3::PutObjectRequest::default()
         })) {
-            warn!("upload to S3 failed, will retry later: {}", e);
+            warn!(log, "upload to S3 failed, will retry later: {}", e);
         } else {
-            info!("uploaded state to S3");
+            info!(log, "uploaded state to S3");
         }
     }
 
