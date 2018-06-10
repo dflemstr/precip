@@ -1,6 +1,5 @@
 # Maintainer: David Flemström <david.flemstrom@gmail.com>
 pkgname=precip
-pkgver=0.1.0
 pkgrel=1
 pkgdesc='irrigation control system'
 arch=('x86_64' 'armv7h')
@@ -10,6 +9,11 @@ depends=('libsystemd' 'postgresql-libs')
 makedepends=('rustup' 'git')
 source=('git+https://github.com/dflemstr/precip.git') # TODO: use version number
 md5sums=('SKIP')
+
+pkgver() {
+  cd "$pkgname"
+  git describe --long | sed 's/\([^-]*-g\)/r\1/;s/-/./g'
+}
 
 build() {
   cd "$pkgname"
