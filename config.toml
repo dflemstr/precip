@@ -5,8 +5,8 @@ description = """
 
 Half shade, lots of water, normal fertilization, **edible**.
 """
-max_moisture = 1.8
-min_moisture = 1.7
+max_moisture = 1.6
+min_moisture = 1.5
 moisture_channel = 0
 pump_channel = 18
 
