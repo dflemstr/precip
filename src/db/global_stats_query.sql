@@ -1,3 +1,4 @@
-SELECT last_value(temperature) temperature
+SELECT temperature
 FROM global_sample
-ORDER BY created ASC;
+ORDER BY created ASC
+LIMIT 1;
