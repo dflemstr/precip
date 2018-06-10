@@ -130,7 +130,6 @@ class Plant extends React.Component {
             color='rgba(0, 255, 0, 0.1)'
           />
           <XAxis
-            tickTotal={6}
             tickSizeInner={0}
             style={{
               line: {
