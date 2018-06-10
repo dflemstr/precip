@@ -128,7 +128,7 @@ fn init_log() -> Result<slog::Logger, failure::Error> {
 
     let decorator = slog_term::TermDecorator::new().build();
     let term_drain = slog_term::FullFormat::new(decorator).build().fuse();
-    let journald_drain = slog_journald::JournaldDrain;
+    let journald_drain = slog::LevelFilter::new(slog_journald::JournaldDrain, slog::Level::Info);
 
     let drain = slog_async::Async::new(
         slog::Duplicate::new(term_drain, journald_drain).ignore_res(),
