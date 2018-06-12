@@ -10,7 +10,6 @@ import { default as chroma } from 'chroma-js'
 import 'react-vis/dist/style.css'
 import Typography from '@material-ui/core/Typography'
 import CircularProgress from '@material-ui/core/CircularProgress'
-import Power from '@material-ui/icons/Power'
 import PropTypes from 'prop-types'
 import Grid from '@material-ui/core/Grid'
 import { min, max } from 'lodash'
@@ -175,22 +174,6 @@ class Plant extends React.Component {
               display: 'inline'
             }}>{children}</p>)}>{Math.round(moistureRatio * 1000) / 10}%&nbsp;moisture</Typography>
           </Grid>}
-          <Grid item>
-            <CircularProgress
-              size={20}
-              variant='static'
-              value={54.3}
-              style={{display: 'inline-box', verticalAlign: 'middle', marginRight: '8px'}} />
-            <Typography component={({children, ...props}) => (<p {...props} style={{
-              display: 'inline'
-            }}>{children}</p>)}>22.3°C&nbsp;ambient</Typography>
-          </Grid>
-          <Grid item>
-            <Power style={{verticalAlign: 'middle'}} />
-            <Typography component={({children, ...props}) => (<p {...props} style={{
-              display: 'inline'
-            }}>{children}</p>)}>Pump running</Typography>
-          </Grid>
         </Grid>
       </CardContent>
     </Card>)
