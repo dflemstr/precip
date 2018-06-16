@@ -11,6 +11,7 @@ extern crate futures_await as futures;
 extern crate i2cdev;
 extern crate i2cdev_bmp280;
 extern crate i2csensors;
+extern crate itertools;
 #[macro_use]
 extern crate slog;
 extern crate r2d2;
@@ -35,6 +36,7 @@ extern crate tokio;
 extern crate toml;
 extern crate uuid;
 
+use std::collections;
 use std::env;
 use std::ffi;
 use std::fs;
@@ -54,6 +56,7 @@ pub mod sensors;
 pub mod util;
 
 fn main() -> Result<(), failure::Error> {
+    use itertools::Itertools;
     use std::io::Read;
     use structopt::StructOpt;
 
@@ -75,8 +78,17 @@ fn main() -> Result<(), failure::Error> {
     let database_url = env::var("DATABASE_URL")?;
     let db = sync::Arc::new(db::Db::connect(log.clone(), &database_url)?);
 
-    let dac1_i2c_dev = i2cdev::linux::LinuxI2CDevice::new("/dev/i2c-1", 0x48)?;
-    let dac1 = ads1x15::Ads1x15::new_ads1115(dac1_i2c_dev);
+    let loaded_modules = sync::Arc::new(load_modules(log.clone(), &config, &db)?);
+
+    let dacs = (*loaded_modules)
+        .iter()
+        .map(|m| m.moisture_i2c_address)
+        .unique()
+        .map(|addr| {
+            let i2c_dev = i2cdev::linux::LinuxI2CDevice::new("/dev/i2c-1", 0x48)?;
+            Ok((addr, ads1x15::Ads1x15::new_ads1115(i2c_dev)))
+        })
+        .collect::<Result<collections::HashMap<_, _>, failure::Error>>()?;
 
     let bmp280_i2c_dev = i2cdev_bmp280::get_linux_bmp280_i2c_device().unwrap();
     let bmp280 = i2cdev_bmp280::BMP280::new(
@@ -90,8 +102,6 @@ fn main() -> Result<(), failure::Error> {
             power_mode: i2cdev_bmp280::BMP280PowerMode::NormalMode,
         },
     )?;
-
-    let loaded_modules = sync::Arc::new(load_modules(log.clone(), &config, &db)?);
 
     let (state_tx, state_rx) = futures::sync::mpsc::channel(0);
 
@@ -107,7 +117,7 @@ fn main() -> Result<(), failure::Error> {
     };
 
     tokio::run(futures::future::lazy(move || {
-        let sampler = sync::Arc::new(sensors::Ads1x15Sampler::start(dac1).unwrap());
+        let sampler = sync::Arc::new(sensors::Ads1x15Sampler::start(dacs).unwrap());
 
         tokio::spawn(
             collect_stats_job(log.clone(), loaded_modules.clone(), db.clone(), state_tx).map_err({
@@ -230,7 +240,9 @@ fn sample_module_job(
     ) {
         let now = chrono::Utc::now();
         // TODO(dflemstr): implement proper scale for moisture (maybe in percent)
-        let moisture = 3.3 - await!(sampler.sample(module.moisture_channel))? as f64;
+        let moisture = 3.3 - await!(
+            sampler.sample(module.moisture_i2c_address, module.moisture_channel)
+        )? as f64;
         db.insert_sample(module.id, now, moisture)?;
 
         if pump.running()? {
@@ -325,7 +337,8 @@ fn load_modules(
                 description: plant.description.clone(),
                 min_moisture: plant.min_moisture,
                 max_moisture: plant.max_moisture,
-                moisture_channel: match plant.moisture_channel {
+                moisture_i2c_address: plant.moisture_channel.i2c_address,
+                moisture_channel: match plant.moisture_channel.analog_pin {
                     0 => ads1x15::Channel::A0,
                     1 => ads1x15::Channel::A1,
                     2 => ads1x15::Channel::A2,
