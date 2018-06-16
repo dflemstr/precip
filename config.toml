@@ -17,8 +17,8 @@ description = """
 
 Sunny/half shade, not too much water, normal fertilization, **edible**.
 """
-max_moisture = 1.2
-min_moisture = 1.15
+max_moisture = 1.7
+min_moisture = 1.6
 moisture_channel = 1
 pump_channel = 23
 
@@ -29,8 +29,8 @@ description = """
 
 Sunny/half shade, normal amount of water, normal fertilization, **edible**.
 """
-max_moisture = 1.3
-min_moisture = 1.25
+max_moisture = 1.8
+min_moisture = 1.7
 moisture_channel = 2
 pump_channel = 24
 
@@ -42,6 +42,45 @@ description = """
 Sunny/half shade, normal amount of water, normal fertilization, **edible**.
 """
 max_moisture = 1.3
-min_moisture = 1.25
+min_moisture = 1.0
 moisture_channel = 3
 pump_channel = 25
+
+[plant.3767a85a-0016-411e-883c-6c50b25efe54]
+name = "Rosemary"
+description = """
+*rosmarinus officinalis*
+
+Sunny, not too much water, normal fertilization, **edible**.
+"""
+max_moisture = 1.3
+min_moisture = 1.0
+moisture_channel = ???
+pump_channel = ???
+
+[plant.3c11b762-277c-4458-85bc-00418b333fb3]
+name = ""
+
+[plant.e62703ea-b955-47e1-80ea-d516a49bbdd1]
+name = "Coriander"
+description = """
+*coriandrum satvium*
+
+Sunny/half shade, normal amount of water, normal fertilization, **edible**.
+"""
+max_moisture = 1.3
+min_moisture = 1.0
+moisture_channel = ???
+pump_channel = ???
+
+[plant.25406e3f-fa8d-4d1e-9d13-c2a5c66de359]
+name = "Chili 'Tapas'"
+description = """
+*capiscum annuum*
+
+Sunny, should have long water/dry cycles, normal fertilization, **edible**.
+"""
+max_moisture = 2.0
+min_moisture = 1.0
+moisture_channel = ???
+pump_channel = ???
