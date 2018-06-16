@@ -128,11 +128,9 @@ class App extends React.Component {
                 <Typography>
                   Last updated: <Moment fromNow>{this.state.data.created}</Moment>
                 </Typography>
-                <Typography>
-                  <Typography component={({children, ...props}) => (<p {...props} style={{
-                    display: 'inline'
-                  }}>{children}</p>)}>{Math.round(this.state.data.temperature * 100) / 100}°C&nbsp;ambient</Typography>
-                </Typography>
+                <Typography component={({children, ...props}) => (<p {...props} style={{
+                  display: 'inline'
+                }}>{children}</p>)}>{Math.round(this.state.data.temperature * 100) / 100}°C&nbsp;ambient</Typography>
               </CardContent>
             </Card>
           </Grid>
