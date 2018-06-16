@@ -5,7 +5,7 @@ description = """
 
 Half shade, lots of water, normal fertilization, **edible**.
 """
-moisture = { channel = "48-0", distance = "100cm", min = 1.15, max = 1.2 }
+moisture = { channel = "48-0", distance = "100cm", min = 0.0, max = 0.01 }
 pump = { channel = 18 }
 
 [plant.bb789398-6001-4a00-97fc-5dfeab297509]
@@ -15,7 +15,7 @@ description = """
 
 Sunny/half shade, not too much water, normal fertilization, **edible**.
 """
-moisture = { channel = "48-1", distance = "100cm", min = 1.6, max = 1.7 }
+moisture = { channel = "48-1", distance = "100cm", min = 0.0, max = 0.01 }
 pump = { channel = 23 }
 
 [plant.641e4ff8-5a2b-4450-8ada-7a52ca1f9b0f]
@@ -25,7 +25,7 @@ description = """
 
 Sunny/half shade, normal amount of water, normal fertilization, **edible**.
 """
-moisture = { channel = "48-2", distance = "150cm", min = 1.7, max = 1.8 }
+moisture = { channel = "48-2", distance = "150cm", min = 0.0, max = 0.01 }
 pump = { channel = 24 }
 
 [plant.36dd6ec7-2538-426c-8d1a-8f6542458f5a]
