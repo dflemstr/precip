@@ -345,6 +345,7 @@ fn load_modules(
                     3 => ads1x15::Channel::A3,
                     x => bail!("No such moisture channel: {}", x),
                 },
+                moisture_distance: plant.moisture.distance,
                 pump_channel: plant.pump.channel as u64,
             }))
         })
