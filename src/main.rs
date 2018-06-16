@@ -239,11 +239,21 @@ fn sample_module_job(
         time::Duration::from_secs(1),
     ) {
         let now = chrono::Utc::now();
+
         // TODO(dflemstr): implement proper scale for moisture (maybe in percent)
-        let moisture_voltage = await!(
-            sampler.sample(module.moisture_i2c_address, module.moisture_channel)
-        )? as f64;
-        let moisture = (3.3 - moisture_voltage) / module.moisture_distance;
+
+        // Resistivity ρ in Ωm
+        const COPPER_RESISTIVITY: f64 = 1.68e-8;
+        // Cross section A in m²
+        const CABLE_CROSS_SECTION_AREA: f64 = 1.81e-6;
+        // Resistance factor ρ/A in Ωm⁻¹
+        const RESISTANCE_FACTOR: f64 = COPPER_RESISTIVITY / CABLE_CROSS_SECTION_AREA;
+
+        let resistance = RESISTANCE_FACTOR * module.moisture_distance;
+        let moisture_voltage =
+            await!(sampler.sample(module.moisture_i2c_address, module.moisture_channel))? as f64;
+        // Moisture measured in A; we should normalize this here.
+        let moisture = moisture_voltage * resistance;
 
         db.insert_sample(module.id, now, moisture)?;
 
