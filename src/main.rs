@@ -335,17 +335,17 @@ fn load_modules(
                 uuid: *uuid,
                 name: plant.name.clone(),
                 description: plant.description.clone(),
-                min_moisture: plant.min_moisture,
-                max_moisture: plant.max_moisture,
-                moisture_i2c_address: plant.moisture_channel.i2c_address,
-                moisture_channel: match plant.moisture_channel.analog_pin {
+                min_moisture: plant.moisture.min,
+                max_moisture: plant.moisture.max,
+                moisture_i2c_address: plant.moisture.channel.i2c_address,
+                moisture_channel: match plant.moisture.channel.analog_pin {
                     0 => ads1x15::Channel::A0,
                     1 => ads1x15::Channel::A1,
                     2 => ads1x15::Channel::A2,
                     3 => ads1x15::Channel::A3,
                     x => bail!("No such moisture channel: {}", x),
                 },
-                pump_channel: plant.pump_channel as u64,
+                pump_channel: plant.pump.channel as u64,
             }))
         })
         .collect()

@@ -13,17 +13,27 @@ pub struct Config {
 pub struct Plant {
     pub name: String,
     pub description: String,
+    pub moisture: Moisture,
+    pub pump: Pump,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Moisture {
     #[serde(deserialize_with = "deserialize_moisture_channel")]
-    pub moisture_channel: MoistureChannel,
-    pub pump_channel: u8,
-    pub min_moisture: f64,
-    pub max_moisture: f64,
+    pub channel: MoistureChannel,
+    pub min: f64,
+    pub max: f64,
 }
 
 #[derive(Debug)]
 pub struct MoistureChannel {
     pub i2c_address: u8,
     pub analog_pin: u8,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Pump {
+    pub channel: u8,
 }
 
 fn deserialize_moisture_channel<'de, D>(deserializer: D) -> Result<MoistureChannel, D::Error>

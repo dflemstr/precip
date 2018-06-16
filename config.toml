@@ -5,10 +5,8 @@ description = """
 
 Half shade, lots of water, normal fertilization, **edible**.
 """
-max_moisture = 1.2
-min_moisture = 1.15
-moisture_channel = "48-0"
-pump_channel = 18
+moisture = { channel = "48-0", min = 1.15, max = 1.2 }
+pump = { channel = 18 }
 
 [plant.bb789398-6001-4a00-97fc-5dfeab297509]
 name = "French Tarragon"
@@ -17,10 +15,8 @@ description = """
 
 Sunny/half shade, not too much water, normal fertilization, **edible**.
 """
-max_moisture = 1.7
-min_moisture = 1.6
-moisture_channel = "48-1"
-pump_channel = 23
+moisture = { channel = "48-1", min = 1.6, max = 1.7 }
+pump = { channel = 23 }
 
 [plant.641e4ff8-5a2b-4450-8ada-7a52ca1f9b0f]
 name = "Chives"
@@ -29,10 +25,8 @@ description = """
 
 Sunny/half shade, normal amount of water, normal fertilization, **edible**.
 """
-max_moisture = 1.8
-min_moisture = 1.7
-moisture_channel = "48-2"
-pump_channel = 24
+moisture = { channel = "48-2", min = 1.7, max = 1.8 }
+pump = { channel = 24 }
 
 [plant.36dd6ec7-2538-426c-8d1a-8f6542458f5a]
 name = "Moroccan Mint"
@@ -41,10 +35,8 @@ description = """
 
 Sunny/half shade, normal amount of water, normal fertilization, **edible**.
 """
-max_moisture = 1.3
-min_moisture = 1.0
-moisture_channel = "48-3"
-pump_channel = 25
+moisture = { channel = "48-3", min = 1.0, max = 1.3 }
+pump = { channel = 25 }
 
 [plant.3767a85a-0016-411e-883c-6c50b25efe54]
 name = "Rosemary"
@@ -53,10 +45,8 @@ description = """
 
 Sunny, not too much water, normal fertilization, **edible**.
 """
-max_moisture = 1.3
-min_moisture = 1.0
-moisture_channel = "49-0"
-pump_channel = 12
+moisture = { channel = "49-0", min = 1.0, max = 1.3 }
+pump = { channel = 12 }
 
 [plant.3c11b762-277c-4458-85bc-00418b333fb3]
 name = "Lemon balm"
@@ -65,10 +55,8 @@ description = """
 
 Sunny/half shade, normal amount of water, normal fertilization, **edible**.
 """
-max_moisture = 1.3
-min_moisture = 1.0
-moisture_channel = "49-0"
-pump_channel = 16
+moisture = { channel = "49-1", min = 1.0, max = 1.3 }
+pump = { channel = 16 }
 
 [plant.e62703ea-b955-47e1-80ea-d516a49bbdd1]
 name = "Coriander"
@@ -77,10 +65,8 @@ description = """
 
 Sunny/half shade, normal amount of water, normal fertilization, **edible**.
 """
-max_moisture = 1.3
-min_moisture = 1.0
-moisture_channel = "49-1"
-pump_channel = 20
+moisture = { channel = "49-2", min = 1.0, max = 1.3 }
+pump = { channel = 20 }
 
 [plant.25406e3f-fa8d-4d1e-9d13-c2a5c66de359]
 name = "Chili 'Tapas'"
@@ -89,7 +75,5 @@ description = """
 
 Sunny, should have long water/dry cycles, normal fertilization, **edible**.
 """
-max_moisture = 2.0
-min_moisture = 1.0
-moisture_channel = "49-2"
-pump_channel = 21
+moisture = { channel = "49-3", min = 1.0, max = 2.0 }
+pump = { channel = 21 }
