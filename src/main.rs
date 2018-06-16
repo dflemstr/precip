@@ -240,9 +240,11 @@ fn sample_module_job(
     ) {
         let now = chrono::Utc::now();
         // TODO(dflemstr): implement proper scale for moisture (maybe in percent)
-        let moisture = 3.3 - await!(
+        let moisture_voltage = await!(
             sampler.sample(module.moisture_i2c_address, module.moisture_channel)
         )? as f64;
+        let moisture = (3.3 - moisture_voltage) / module.moisture_distance;
+
         db.insert_sample(module.id, now, moisture)?;
 
         if pump.running()? {
