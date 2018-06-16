@@ -253,7 +253,7 @@ fn sample_module_job(
         let moisture_voltage =
             await!(sampler.sample(module.moisture_i2c_address, module.moisture_channel))? as f64;
         // Moisture measured in A; we should normalize this here.
-        let moisture = moisture_voltage * resistance;
+        let moisture = (3.3 - moisture_voltage) * resistance;
 
         db.insert_sample(module.id, now, moisture)?;
 
