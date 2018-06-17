@@ -106,6 +106,27 @@ impl Db {
         Ok(())
     }
 
+    pub fn fetch_module_moisture_voltage_range(
+        &self,
+        m_id: i32,
+    ) -> Result<(Option<f64>, Option<f64>), failure::Error> {
+        use db::schema::sample::dsl::*;
+        use diesel::dsl::*;
+
+        let conn = self.0.get()?;
+
+        let min_value = sample
+            .select(min(raw_voltage))
+            .filter(module_id.eq(m_id))
+            .first(&*conn)?;
+        let max_value = sample
+            .select(max(raw_voltage))
+            .filter(module_id.eq(m_id))
+            .first(&*conn)?;
+
+        Ok((min_value, max_value))
+    }
+
     pub fn collect_timeseries_samples(
         &self,
     ) -> Result<Vec<model::TimeseriesSample>, failure::Error> {

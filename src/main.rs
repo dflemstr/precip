@@ -240,11 +240,18 @@ fn sample_module_job(
     ) {
         let now = chrono::Utc::now();
 
-        let moisture_voltage_range = module.moisture_voltage_dry - module.moisture_voltage_wet;
+        let (moisture_min_voltage, moisture_max_voltage) =
+            db.fetch_module_moisture_voltage_range(module.id)?;
+        let moisture_voltage_wet = moisture_min_voltage
+            .map(|v| v.min(module.moisture_voltage_wet))
+            .unwrap_or(module.moisture_voltage_wet);
+        let moisture_voltage_dry = moisture_max_voltage
+            .map(|v| v.min(module.moisture_voltage_dry))
+            .unwrap_or(module.moisture_voltage_dry);
+        let moisture_voltage_range = moisture_voltage_dry - moisture_voltage_wet;
         let moisture_voltage =
             await!(sampler.sample(module.moisture_i2c_address, module.moisture_channel))? as f64;
-        let moisture =
-            1.0 - (moisture_voltage - module.moisture_voltage_wet) / moisture_voltage_range;
+        let moisture = 1.0 - (moisture_voltage - moisture_voltage_wet) / moisture_voltage_range;
 
         db.insert_sample(module.id, now, moisture, moisture_voltage)?;
 
