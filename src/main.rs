@@ -246,7 +246,7 @@ fn sample_module_job(
             .map(|v| v.min(module.moisture_voltage_wet))
             .unwrap_or(module.moisture_voltage_wet);
         let moisture_voltage_dry = moisture_max_voltage
-            .map(|v| v.min(module.moisture_voltage_dry))
+            .map(|v| v.max(module.moisture_voltage_dry))
             .unwrap_or(module.moisture_voltage_dry);
         let moisture_voltage_range = moisture_voltage_dry - moisture_voltage_wet;
         let moisture_voltage =
