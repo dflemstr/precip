@@ -242,18 +242,22 @@ fn sample_module_job(
 
         // TODO(dflemstr): implement proper scale for moisture (maybe in percent)
 
+        // Device current in A
+        const BASE_CURRENT: f64 = 0.035;
+        // Ideal resistance for 3.3V/35mA in Ω
+        const BASE_RESISTANCE: f64 = 94.2857143;
+
         // Resistivity ρ in Ωm
         const COPPER_RESISTIVITY: f64 = 1.68e-8;
         // Cross section A in m²
         const CABLE_CROSS_SECTION_AREA: f64 = 1.81e-6;
         // Resistance factor ρ/A in Ωm⁻¹
         const RESISTANCE_FACTOR: f64 = COPPER_RESISTIVITY / CABLE_CROSS_SECTION_AREA;
+        let cable_resistance = RESISTANCE_FACTOR * module.moisture_distance;
 
-        let resistance = RESISTANCE_FACTOR * module.moisture_distance;
         let moisture_voltage =
             await!(sampler.sample(module.moisture_i2c_address, module.moisture_channel))? as f64;
-        // Moisture measured in A; we should normalize this here.
-        let moisture = (3.3 - moisture_voltage) * resistance;
+        let moisture = BASE_CURRENT * moisture_voltage - BASE_RESISTANCE - cable_resistance;
 
         db.insert_sample(module.id, now, moisture)?;
 
