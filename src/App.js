@@ -130,7 +130,7 @@ class App extends React.Component {
                 </Typography>
                 <Typography component={({children, ...props}) => (<p {...props} style={{
                   display: 'inline'
-                }}>{children}</p>)}>{Math.round(this.state.data.temperature * 100) / 100}°C&nbsp;ambient</Typography>
+                }}>{children}</p>)}>{this.state.data.temperature.toFixed(2)}°C&nbsp;ambient</Typography>
               </CardContent>
             </Card>
           </Grid>

@@ -146,11 +146,11 @@ class Plant extends React.Component {
           <Crosshair values={crosshairValues}>
             <div className='rv-crosshair__inner__content'>
               <Typography className='rv-crosshair__item' variant='caption' style={{color: legendTextColor}}>
-                max&#9;{Math.round(crosshairValues[4].y * 1000) / 1000}<br />
-                p75&#9;{Math.round(crosshairValues[3].y * 1000) / 1000}<br />
-                p50&#9;{Math.round(crosshairValues[2].y * 1000) / 1000}<br />
-                p25&#9;{Math.round(crosshairValues[1].y * 1000) / 1000}<br />
-                min&#9;{Math.round(crosshairValues[0].y * 1000) / 1000}
+                max&#9;{crosshairValues[4].y.toPrecision(3)}<br />
+                p75&#9;{crosshairValues[3].y.toPrecision(3)}<br />
+                p50&#9;{crosshairValues[2].y.toPrecision(3)}<br />
+                p25&#9;{crosshairValues[1].y.toPrecision(3)}<br />
+                min&#9;{crosshairValues[0].y.toPrecision(3)}
               </Typography>
             </div>
           </Crosshair>
@@ -172,7 +172,7 @@ class Plant extends React.Component {
               style={{display: 'inline-box', verticalAlign: 'middle', marginRight: '8px'}} />
             <Typography component={({children, ...props}) => (<p {...props} style={{
               display: 'inline'
-            }}>{children}</p>)}>{Math.round(moistureRatio * 1000) / 10}%&nbsp;moisture</Typography>
+            }}>{children}</p>)}>{(moistureRatio * 100).toPrecision(3)}%&nbsp;moisture</Typography>
           </Grid>}
         </Grid>
       </CardContent>
