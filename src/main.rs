@@ -245,7 +245,7 @@ fn sample_module_job(
             await!(sampler.sample(module.moisture_i2c_address, module.moisture_channel))? as f64;
         let moisture = (moisture_voltage - module.moisture_voltage_wet) / moisture_voltage_range;
 
-        db.insert_sample(module.id, now, moisture)?;
+        db.insert_sample(module.id, now, moisture, moisture_voltage)?;
 
         if pump.running()? {
             if moisture > module.max_moisture {

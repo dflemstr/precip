@@ -51,12 +51,14 @@ impl Db {
         module_id: i32,
         created: chrono::DateTime<chrono::Utc>,
         moisture: f64,
+        raw_voltage: f64,
     ) -> Result<(), failure::Error> {
         let conn = self.0.get()?;
         let new_sample = model::NewSample {
             module_id,
             created,
             moisture,
+            raw_voltage,
         };
 
         diesel::insert_into(schema::sample::table)

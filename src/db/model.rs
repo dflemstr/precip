@@ -32,6 +32,7 @@ pub struct Sample {
     pub created: chrono::DateTime<chrono::Utc>,
     pub module_id: i32,
     pub moisture: f64,
+    pub raw_voltage: f64,
 }
 
 #[derive(Debug, Insertable, AsChangeset)]
@@ -40,6 +41,7 @@ pub struct NewSample {
     pub created: chrono::DateTime<chrono::Utc>,
     pub module_id: i32,
     pub moisture: f64,
+    pub raw_voltage: f64,
 }
 
 #[derive(Debug, QueryableByName)]
