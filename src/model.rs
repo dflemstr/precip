@@ -12,4 +12,6 @@ pub struct ModuleConfig {
     pub pump_channel: u64,
     pub min_moisture: f64,
     pub max_moisture: f64,
+    pub moisture_voltage_dry: f64,
+    pub moisture_voltage_wet: f64,
 }

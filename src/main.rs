@@ -240,24 +240,10 @@ fn sample_module_job(
     ) {
         let now = chrono::Utc::now();
 
-        // TODO(dflemstr): implement proper scale for moisture (maybe in percent)
-
-        // Device current in A
-        const BASE_CURRENT: f64 = 0.035;
-        // Ideal resistance for 3.3V/35mA in Ω
-        const BASE_RESISTANCE: f64 = 94.2857143;
-
-        // Resistivity ρ in Ωm
-        const COPPER_RESISTIVITY: f64 = 1.68e-8;
-        // Cross section A in m²
-        const CABLE_CROSS_SECTION_AREA: f64 = 1.81e-6;
-        // Resistance factor ρ/A in Ωm⁻¹
-        const RESISTANCE_FACTOR: f64 = COPPER_RESISTIVITY / CABLE_CROSS_SECTION_AREA;
-        let cable_resistance = RESISTANCE_FACTOR * module.moisture_distance;
-
+        let moisture_voltage_range = module.moisture_voltage_dry - module.moisture_voltage_wet;
         let moisture_voltage =
             await!(sampler.sample(module.moisture_i2c_address, module.moisture_channel))? as f64;
-        let moisture = BASE_CURRENT * moisture_voltage - BASE_RESISTANCE - cable_resistance;
+        let moisture = (moisture_voltage - module.moisture_voltage_wet) / moisture_voltage_range;
 
         db.insert_sample(module.id, now, moisture)?;
 
@@ -353,6 +339,8 @@ fn load_modules(
                 description: plant.description.clone(),
                 min_moisture: plant.moisture.min,
                 max_moisture: plant.moisture.max,
+                moisture_voltage_dry: plant.moisture.voltage_dry,
+                moisture_voltage_wet: plant.moisture.voltage_wet,
                 moisture_i2c_address: plant.moisture.channel.i2c_address,
                 moisture_channel: match plant.moisture.channel.analog_pin {
                     0 => ads1x15::Channel::A0,

@@ -24,6 +24,8 @@ pub struct Moisture {
     pub channel: MoistureChannel,
     #[serde(deserialize_with = "deserialize_distance")]
     pub distance: f64,
+    pub voltage_dry: f64,
+    pub voltage_wet: f64,
     // in meters
     pub min: f64,
     pub max: f64,
