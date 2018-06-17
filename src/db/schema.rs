@@ -36,9 +36,4 @@ table! {
 joinable!(pump_event -> module (module_id));
 joinable!(sample -> module (module_id));
 
-allow_tables_to_appear_in_same_query!(
-    global_sample,
-    module,
-    pump_event,
-    sample,
-);
+allow_tables_to_appear_in_same_query!(global_sample, module, pump_event, sample,);
