@@ -82,15 +82,13 @@ class Plant extends React.Component {
       const maxs = data.max.map((v, i) => ({x: xs[i], y: v}))
       const start = min(xs)
       const end = max(xs)
-      const yAxisMin = Math.min(module.minMoisture - moisturePadding, module.targetMinMoisture - moisturePadding)
-      const yAxisMax = Math.max(module.maxMoisture + moisturePadding, module.targetMaxMoisture + moisturePadding)
-      const pumpings = module.pumpRunning.map(v => ({x: new Date(v[0]), x0: new Date(v[1]), y: yAxisMin, y0: yAxisMax}))
+      const pumpings = module.pumpRunning.map(v => ({x: new Date(v[0]), x0: new Date(v[1]), y: 0, y0: 1}))
 
       plot = (
         <FlexibleWidthXYPlot
           height={100}
           xType='time-utc'
-          yDomain={[yAxisMin, yAxisMax]}
+          yDomain={[0, 1]}
           onMouseLeave={this._onMouseLeave}
           colorType='linear'
           colorDomain={[0.0, 2.0]}
@@ -129,6 +127,7 @@ class Plant extends React.Component {
           />
           <XAxis
             tickSizeInner={0}
+            tickTotal={8}
             style={{
               line: {
                 stroke: 'none'
