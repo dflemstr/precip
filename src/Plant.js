@@ -68,7 +68,6 @@ class Plant extends React.Component {
 
     const crosshairValues = this.state.crosshairValues
 
-    let moistureRatio = module.lastMoisture ? (module.lastMoisture - module.minMoisture) / (module.maxMoisture - module.minMoisture) : null
     let moisturePadding = (module.maxMoisture - module.minMoisture) * 0.1
 
     let plot = null
@@ -164,15 +163,15 @@ class Plant extends React.Component {
         {plot}
 
         <Grid container spacing={8}>
-          {moistureRatio && <Grid item>
+          {module.lastMoisture && <Grid item>
             <CircularProgress
               size={20}
               variant='static'
-              value={moistureRatio * 100}
+              value={module.lastMoisture * 100}
               style={{display: 'inline-box', verticalAlign: 'middle', marginRight: '8px'}} />
             <Typography component={({children, ...props}) => (<p {...props} style={{
               display: 'inline'
-            }}>{children}</p>)}>{(moistureRatio * 100).toPrecision(3)}%&nbsp;moisture</Typography>
+            }}>{children}</p>)}>{(module.lastMoisture * 100).toPrecision(3)}%&nbsp;moisture</Typography>
           </Grid>}
         </Grid>
       </CardContent>
