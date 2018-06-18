@@ -45,21 +45,31 @@ pub struct NewSample {
 }
 
 #[derive(Debug, QueryableByName)]
-pub struct TimeseriesSample {
+pub struct SampleTimeseries {
     #[sql_type = "Integer"]
     pub module_id: i32,
     #[sql_type = "Timestamptz"]
     pub slice: chrono::DateTime<chrono::Utc>,
     #[sql_type = "Float8"]
-    pub min_moisture: f64,
+    pub min_raw_voltage: f64,
     #[sql_type = "Float8"]
-    pub max_moisture: f64,
+    pub max_raw_voltage: f64,
     #[sql_type = "Float8"]
-    pub p25_moisture: f64,
+    pub p25_raw_voltage: f64,
     #[sql_type = "Float8"]
-    pub p50_moisture: f64,
+    pub p50_raw_voltage: f64,
     #[sql_type = "Float8"]
-    pub p75_moisture: f64,
+    pub p75_raw_voltage: f64,
+}
+
+#[derive(Debug, QueryableByName)]
+pub struct SampleRange {
+    #[sql_type = "Integer"]
+    pub module_id: i32,
+    #[sql_type = "Float8"]
+    pub min_raw_voltage: f64,
+    #[sql_type = "Float8"]
+    pub max_raw_voltage: f64,
 }
 
 #[derive(Debug, QueryableByName)]

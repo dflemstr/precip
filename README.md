@@ -1,5 +1,7 @@
 # `precip`
 
+**NOTE: This repo is a huge hack, and the code is very very ugly**
+
 Administration of irrigation relay controllers via the web.
 
 ## Legal

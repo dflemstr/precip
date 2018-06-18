@@ -127,11 +127,17 @@ impl Db {
         Ok((min_value, max_value))
     }
 
-    pub fn collect_timeseries_samples(
-        &self,
-    ) -> Result<Vec<model::TimeseriesSample>, failure::Error> {
+    pub fn collect_samples_range(&self) -> Result<Vec<model::SampleRange>, failure::Error> {
         let conn = self.0.get()?;
-        let result = diesel::sql_query(include_str!("timeseries_samples_query.sql")).load(&*conn)?;
+        let result = diesel::sql_query(include_str!("samples_timeseries_query.sql")).load(&*conn)?;
+        Ok(result)
+    }
+
+    pub fn collect_samples_timeseries(
+        &self,
+    ) -> Result<Vec<model::SampleTimeseries>, failure::Error> {
+        let conn = self.0.get()?;
+        let result = diesel::sql_query(include_str!("samples_timeseries_query.sql")).load(&*conn)?;
         Ok(result)
     }
 

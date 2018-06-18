@@ -240,18 +240,17 @@ fn sample_module_job(
     ) {
         let now = chrono::Utc::now();
 
-        let (moisture_min_voltage, moisture_max_voltage) =
-            db.fetch_module_moisture_voltage_range(module.id)?;
-        let moisture_voltage_wet = moisture_min_voltage
-            .map(|v| v.min(module.moisture_voltage_wet))
-            .unwrap_or(module.moisture_voltage_wet);
-        let moisture_voltage_dry = moisture_max_voltage
-            .map(|v| v.max(module.moisture_voltage_dry))
-            .unwrap_or(module.moisture_voltage_dry);
-        let moisture_voltage_range = moisture_voltage_dry - moisture_voltage_wet;
         let moisture_voltage =
             await!(sampler.sample(module.moisture_i2c_address, module.moisture_channel))? as f64;
-        let moisture = 1.0 - (moisture_voltage - moisture_voltage_wet) / moisture_voltage_range;
+        let (moisture_min_voltage, moisture_max_voltage) =
+            db.fetch_module_moisture_voltage_range(module.id)?;
+
+        let moisture = compute_moisture(
+            &*module,
+            moisture_voltage,
+            moisture_min_voltage,
+            moisture_max_voltage,
+        );
 
         db.insert_sample(module.id, now, moisture, moisture_voltage)?;
 
@@ -293,6 +292,22 @@ fn sample_module_job(
     Ok(())
 }
 
+fn compute_moisture(
+    module: &model::ModuleConfig,
+    moisture_voltage: f64,
+    moisture_min_voltage: Option<f64>,
+    moisture_max_voltage: Option<f64>,
+) -> f64 {
+    let moisture_voltage_wet = moisture_min_voltage
+        .map(|v| v.min(module.moisture_voltage_wet))
+        .unwrap_or(module.moisture_voltage_wet);
+    let moisture_voltage_dry = moisture_max_voltage
+        .map(|v| v.max(module.moisture_voltage_dry))
+        .unwrap_or(module.moisture_voltage_dry);
+    let moisture_voltage_range = moisture_voltage_dry - moisture_voltage_wet;
+    1.0 - (moisture_voltage - moisture_voltage_wet) / moisture_voltage_range
+}
+
 #[async]
 fn collect_stats_job(
     log: slog::Logger,
@@ -308,7 +323,8 @@ fn collect_stats_job(
     ) {
         let created = chrono::Utc::now();
         let state_tx = state_tx.clone();
-        let timeseries_samples = db.collect_timeseries_samples()?;
+        let samples_timeseries = db.collect_samples_timeseries()?;
+        let samples_range = db.collect_samples_range()?;
         let pump_events = db.collect_pump_events()?;
         let stats = db.collect_stats()?;
         let global_stats = db.collect_global_stats()?;
@@ -316,7 +332,8 @@ fn collect_stats_job(
             log.clone(),
             created,
             &loaded_modules,
-            &timeseries_samples,
+            &samples_timeseries,
+            &samples_range,
             &pump_events,
             &stats,
             &global_stats,

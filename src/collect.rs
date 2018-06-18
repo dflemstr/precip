@@ -52,55 +52,111 @@ pub struct Timeseries<A> {
 }
 
 impl State {
-    pub fn new<M, TS, PE, S>(
+    pub fn new<M, TS, R, PE, S>(
         log: slog::Logger,
         created: chrono::DateTime<chrono::Utc>,
         loaded_modules: &[M],
-        timeseries_samples: &[TS],
+        samples_timeseries: &[TS],
+        samples_ranges: &[R],
         pump_events: &[PE],
         stats: &[S],
         global_stats: &db::model::GlobalStats,
     ) -> State
     where
         M: borrow::Borrow<model::ModuleConfig>,
-        TS: borrow::Borrow<db::model::TimeseriesSample>,
+        TS: borrow::Borrow<db::model::SampleTimeseries>,
+        R: borrow::Borrow<db::model::SampleRange>,
         PE: borrow::Borrow<db::model::PumpEvent>,
         S: borrow::Borrow<db::model::Stats>,
     {
         let temperature = global_stats.temperature;
-        let mut modules = collections::HashMap::new();
 
-        for module in loaded_modules {
-            let module = module.borrow();
-            modules.insert(
-                module.id,
-                Module {
-                    id: module.uuid.to_string(),
-                    name: module.name.to_owned(),
-                    description: module.description.to_owned(),
-                    running: false,
-                    force_running: false,
-                    min_moisture: 0.0,
-                    max_moisture: 0.0,
-                    target_min_moisture: module.min_moisture,
-                    target_max_moisture: module.max_moisture,
-                    last_moisture: 0.0,
-                    moisture_timeseries: Timeseries::default(),
-                    pump_running: Vec::new(),
-                },
-            );
-        }
+        let mut modules = loaded_modules
+            .iter()
+            .map(|module| {
+                let module = module.borrow();
+                (
+                    module.id,
+                    Module {
+                        id: module.uuid.to_string(),
+                        name: module.name.to_owned(),
+                        description: module.description.to_owned(),
+                        running: false,
+                        force_running: false,
+                        min_moisture: 0.0,
+                        max_moisture: 0.0,
+                        target_min_moisture: module.min_moisture,
+                        target_max_moisture: module.max_moisture,
+                        last_moisture: 0.0,
+                        moisture_timeseries: Timeseries::default(),
+                        pump_running: Vec::new(),
+                    },
+                )
+            })
+            .collect::<collections::HashMap<_, _>>();
 
-        for sample in timeseries_samples {
+        let module_configs = loaded_modules
+            .iter()
+            .map(|m| {
+                let m = m.borrow();
+                (m.id, m)
+            })
+            .collect::<collections::HashMap<_, _>>();
+
+        let module_samples_ranges = samples_ranges
+            .iter()
+            .map(|samples_range| {
+                let samples_range = samples_range.borrow();
+                (
+                    samples_range.module_id,
+                    (samples_range.min_raw_voltage, samples_range.max_raw_voltage),
+                )
+            })
+            .collect::<collections::HashMap<_, _>>();
+
+        for sample in samples_timeseries {
             let sample = sample.borrow();
             if let Some(module) = modules.get_mut(&sample.module_id) {
+                let module_config = module_configs[&sample.module_id];
+
+                let (min_voltage, max_voltage) = match module_samples_ranges.get(&sample.module_id)
+                {
+                    Some(&(min, max)) => (Some(min), Some(max)),
+                    None => (None, None),
+                };
+
                 let ts = &mut module.moisture_timeseries;
                 ts.measurement_start.push(sample.slice);
-                ts.min.push(sample.min_moisture);
-                ts.max.push(sample.max_moisture);
-                ts.p25.push(sample.p25_moisture);
-                ts.p50.push(sample.p50_moisture);
-                ts.p75.push(sample.p75_moisture);
+                ts.min.push(::compute_moisture(
+                    module_config,
+                    sample.min_raw_voltage,
+                    min_voltage,
+                    max_voltage,
+                ));
+                ts.max.push(::compute_moisture(
+                    module_config,
+                    sample.max_raw_voltage,
+                    min_voltage,
+                    max_voltage,
+                ));
+                ts.p25.push(::compute_moisture(
+                    module_config,
+                    sample.p25_raw_voltage,
+                    min_voltage,
+                    max_voltage,
+                ));
+                ts.p50.push(::compute_moisture(
+                    module_config,
+                    sample.p50_raw_voltage,
+                    min_voltage,
+                    max_voltage,
+                ));
+                ts.p75.push(::compute_moisture(
+                    module_config,
+                    sample.p75_raw_voltage,
+                    min_voltage,
+                    max_voltage,
+                ));
             }
         }
 
