@@ -5,7 +5,7 @@ description = """
 
 Half shade, lots of water, normal fertilization, **edible**.
 """
-moisture = { channel = "48-0", distance = "100cm", voltage_wet = 0.476884, voltage_dry = 0.78863, min = 0.0, max = 0.01 }
+moisture = { channel = "48-0", distance = "100cm", voltage_wet = 0.476884, voltage_dry = 0.78863, min = 0.1, max = 0.4 }
 pump = { channel = 18 }
 
 [plant.bb789398-6001-4a00-97fc-5dfeab297509]
@@ -35,7 +35,7 @@ description = """
 
 Sunny/half shade, normal amount of water, normal fertilization, **edible**.
 """
-moisture = { channel = "48-3", distance = "150cm", voltage_wet = 0.622646, voltage_dry = 1.40869, min = 0.0, max = 0.01 }
+moisture = { channel = "48-3", distance = "150cm", voltage_wet = 0.622646, voltage_dry = 1.40869, min = 0.1, max = 0.4 }
 pump = { channel = 25 }
 
 ########################################################################################################################
@@ -49,7 +49,7 @@ description = """
 
 Sunny, not too much water, normal fertilization, **edible**.
 """
-moisture = { channel = "49-0", distance = "200cm", voltage_wet = 1.08844, voltage_dry = 1.63338, min = 0.0, max = 0.01 }
+moisture = { channel = "49-0", distance = "200cm", voltage_wet = 1.08844, voltage_dry = 1.63338, min = 0.1, max = 0.4 }
 pump = { channel = 12 }
 
 [plant.3c11b762-277c-4458-85bc-00418b333fb3]
@@ -79,5 +79,5 @@ description = """
 
 Sunny, should have long water/dry cycles, normal fertilization, **edible**.
 """
-moisture = { channel = "49-3", distance = "300cm", voltage_wet = 1.03725, voltage_dry = 1.81738, min = 0.0, max = 0.01 }
+moisture = { channel = "49-3", distance = "300cm", voltage_wet = 1.03725, voltage_dry = 1.81738, min = 0.1, max = 0.4 }
 pump = { channel = 21 }
