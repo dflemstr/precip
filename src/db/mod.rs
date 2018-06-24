@@ -129,7 +129,7 @@ impl Db {
 
     pub fn collect_samples_range(&self) -> Result<Vec<model::SampleRange>, failure::Error> {
         let conn = self.0.get()?;
-        let result = diesel::sql_query(include_str!("samples_timeseries_query.sql")).load(&*conn)?;
+        let result = diesel::sql_query(include_str!("sample_range_query.sql")).load(&*conn)?;
         Ok(result)
     }
 

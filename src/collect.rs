@@ -122,7 +122,10 @@ impl State {
                 let (min_voltage, max_voltage) = match module_samples_ranges.get(&sample.module_id)
                 {
                     Some(&(min, max)) => (Some(min), Some(max)),
-                    None => (None, None),
+                    None => {
+                        warn!(log, "no min/max information for module {}", sample.module_id);
+                        (None, None)
+                    },
                 };
 
                 let ts = &mut module.moisture_timeseries;

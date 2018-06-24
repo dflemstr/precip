@@ -68,8 +68,6 @@ class Plant extends React.Component {
 
     const crosshairValues = this.state.crosshairValues
 
-    let moisturePadding = (module.maxMoisture - module.minMoisture) * 0.1
-
     let plot = null
 
     if (module.moistureTimeseries) {
