@@ -82,7 +82,7 @@ fn main() -> Result<(), failure::Error> {
         .map(|m| m.moisture_i2c_address)
         .unique()
         .map(|addr| {
-            let i2c_dev = i2cdev::linux::LinuxI2CDevice::new("/dev/i2c-1", 0x48)?;
+            let i2c_dev = i2cdev::linux::LinuxI2CDevice::new("/dev/i2c-1", addr)?;
             Ok((addr, ads1x15::Ads1x15::new_ads1115(i2c_dev)))
         })
         .collect::<Result<collections::HashMap<_, _>, failure::Error>>()?;
