@@ -254,7 +254,6 @@ fn sample_module_job(
         db.insert_plant_measurement(now, module.uuid, moisture_voltage)?;
 
         if pump.running()? {
-            db.insert_pump_measurement(now, module.uuid, false)?;
             if moisture > module.max_moisture {
                 info!(
                     log,
@@ -264,9 +263,9 @@ fn sample_module_job(
                     module.uuid
                 );
                 pump.set_running(false)?;
+                db.insert_pump_measurement(now, module.uuid, false)?;
             }
         } else {
-            db.insert_pump_measurement(now, module.uuid, true)?;
             if moisture < module.min_moisture {
                 info!(
                     log,
@@ -276,6 +275,7 @@ fn sample_module_job(
                     module.uuid
                 );
                 pump.set_running(true)?;
+                db.insert_pump_measurement(now, module.uuid, true)?;
             }
         }
 
