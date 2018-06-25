@@ -4,7 +4,8 @@ use rusoto_core;
 use rusoto_s3;
 use serde_json;
 
-use futures::prelude::*;
+use futures::prelude::async;
+use futures::prelude::await;
 
 use std::borrow;
 use std::collections;
@@ -76,7 +77,7 @@ impl State {
             .map(|module| {
                 let module = module.borrow();
                 (
-                    module.id,
+                    module.uuid,
                     Module {
                         id: module.uuid.to_string(),
                         name: module.name.to_owned(),
@@ -99,7 +100,7 @@ impl State {
             .iter()
             .map(|m| {
                 let m = m.borrow();
-                (m.id, m)
+                (m.uuid, m)
             })
             .collect::<collections::HashMap<_, _>>();
 
@@ -108,7 +109,7 @@ impl State {
             .map(|samples_range| {
                 let samples_range = samples_range.borrow();
                 (
-                    samples_range.module_id,
+                    samples_range.module_uuid,
                     (samples_range.min_raw_voltage, samples_range.max_raw_voltage),
                 )
             })
@@ -116,17 +117,20 @@ impl State {
 
         for sample in samples_timeseries {
             let sample = sample.borrow();
-            if let Some(module) = modules.get_mut(&sample.module_id) {
-                let module_config = module_configs[&sample.module_id];
+            if let Some(module) = modules.get_mut(&sample.module_uuid) {
+                let module_config = module_configs[&sample.module_uuid];
 
-                let (min_voltage, max_voltage) = match module_samples_ranges.get(&sample.module_id)
-                {
-                    Some(&(min, max)) => (Some(min), Some(max)),
-                    None => {
-                        warn!(log, "no min/max information for module {}", sample.module_id);
-                        (None, None)
-                    },
-                };
+                let (min_voltage, max_voltage) =
+                    match module_samples_ranges.get(&sample.module_uuid) {
+                        Some(&(min, max)) => (Some(min), Some(max)),
+                        None => {
+                            warn!(
+                                log,
+                                "no min/max information for module {}", sample.module_uuid
+                            );
+                            (None, None)
+                        }
+                    };
 
                 let ts = &mut module.moisture_timeseries;
                 ts.measurement_start.push(sample.slice);
@@ -166,12 +170,12 @@ impl State {
         let mut last_pump_start = collections::HashMap::new();
         for pump_event in pump_events {
             let pump_event = pump_event.borrow();
-            if let Some(module) = modules.get_mut(&pump_event.module_id) {
+            if let Some(module) = modules.get_mut(&pump_event.module_uuid) {
                 if pump_event.pump_running {
-                    last_pump_start.insert(pump_event.module_id, Some(pump_event.created));
+                    last_pump_start.insert(pump_event.module_uuid, Some(pump_event.created));
                 } else {
                     if let Some(start) = last_pump_start
-                        .get_mut(&pump_event.module_id)
+                        .get_mut(&pump_event.module_uuid)
                         .and_then(|o| o.take())
                     {
                         module.pump_running.push([start, pump_event.created]);
@@ -179,14 +183,14 @@ impl State {
                         warn!(
                             log,
                             "Pump event stop running without matching start running event: {}",
-                            pump_event.id
+                            pump_event.created
                         );
                     }
                 }
             }
         }
         for module in loaded_modules {
-            let module_id = module.borrow().id;
+            let module_id = module.borrow().uuid;
             if let Some(start) = last_pump_start.get_mut(&module_id).and_then(|o| o.take()) {
                 if let Some(module) = modules.get_mut(&module_id) {
                     module.pump_running.push([start, created]);
@@ -196,7 +200,7 @@ impl State {
 
         for stat in stats {
             let stat = stat.borrow();
-            if let Some(module) = modules.get_mut(&stat.module_id) {
+            if let Some(module) = modules.get_mut(&stat.module_uuid) {
                 module.min_moisture = stat.min_moisture;
                 module.max_moisture = stat.max_moisture;
                 module.last_moisture = stat.last_moisture;
@@ -217,6 +221,7 @@ pub fn upload_states_to_s3(
     log: slog::Logger,
     states: futures::sync::mpsc::Receiver<State>,
 ) -> Result<(), failure::Error> {
+    use futures::Stream;
     use rusoto_s3::S3;
 
     let s3_client = rusoto_s3::S3Client::simple(rusoto_core::region::Region::EuWest1);

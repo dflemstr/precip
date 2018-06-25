@@ -2,8 +2,6 @@
 
 extern crate ads1x15;
 extern crate chrono;
-#[macro_use]
-extern crate diesel;
 extern crate dotenv;
 #[macro_use]
 extern crate failure;
@@ -11,11 +9,10 @@ extern crate futures_await as futures;
 extern crate i2cdev;
 extern crate i2cdev_bmp280;
 extern crate i2csensors;
+extern crate influent;
 extern crate itertools;
 #[macro_use]
 extern crate slog;
-extern crate r2d2;
-extern crate r2d2_diesel;
 extern crate rand;
 extern crate rusoto_core;
 extern crate rusoto_s3;
@@ -44,7 +41,8 @@ use std::sync;
 use std::thread;
 use std::time;
 
-use futures::prelude::*;
+use futures::prelude::async;
+use futures::prelude::await;
 
 pub mod collect;
 pub mod config;
@@ -75,8 +73,7 @@ fn main() -> Result<(), failure::Error> {
     fs::File::open(config_path)?.read_to_string(&mut config_string)?;
     let config = toml::from_str(&config_string)?;
 
-    let database_url = env::var("DATABASE_URL")?;
-    let db = sync::Arc::new(db::Db::connect(log.clone(), &database_url)?);
+    let db = sync::Arc::new(db::Db::connect(log.clone(), &["127.0.0.1:8086"])?);
 
     let loaded_modules = sync::Arc::new(load_modules(log.clone(), &config, &db)?);
 
@@ -117,6 +114,8 @@ fn main() -> Result<(), failure::Error> {
     };
 
     tokio::run(futures::future::lazy(move || {
+        use futures::Future;
+
         let sampler = sync::Arc::new(sensors::Ads1x15Sampler::start(dacs).unwrap());
 
         tokio::spawn(
@@ -217,7 +216,7 @@ where
     ) {
         let now = chrono::Utc::now();
         let temperature = i2csensors::Thermometer::temperature_celsius(&mut bmp280)? as f64;
-        db.insert_global_sample(now, temperature)?;
+        db.insert_global_measurement(now, temperature)?;
     }
     Ok(())
 }
@@ -243,7 +242,7 @@ fn sample_module_job(
         let moisture_voltage =
             await!(sampler.sample(module.moisture_i2c_address, module.moisture_channel))? as f64;
         let (moisture_min_voltage, moisture_max_voltage) =
-            db.fetch_module_moisture_voltage_range(module.id)?;
+            db.fetch_module_moisture_voltage_range(module.uuid)?;
 
         let moisture = compute_moisture(
             &*module,
@@ -252,9 +251,10 @@ fn sample_module_job(
             moisture_max_voltage,
         );
 
-        db.insert_sample(module.id, now, moisture, moisture_voltage)?;
+        db.insert_plant_measurement(now, module.uuid, moisture_voltage)?;
 
         if pump.running()? {
+            db.insert_pump_measurement(now, module.uuid, false)?;
             if moisture > module.max_moisture {
                 info!(
                     log,
@@ -264,9 +264,9 @@ fn sample_module_job(
                     module.uuid
                 );
                 pump.set_running(false)?;
-                db.insert_pump_event(module.id, now, false)?;
             }
         } else {
+            db.insert_pump_measurement(now, module.uuid, true)?;
             if moisture < module.min_moisture {
                 info!(
                     log,
@@ -276,7 +276,6 @@ fn sample_module_job(
                     module.uuid
                 );
                 pump.set_running(true)?;
-                db.insert_pump_event(module.id, now, true)?;
             }
         }
 
@@ -315,6 +314,8 @@ fn collect_stats_job(
     db: sync::Arc<db::Db>,
     state_tx: futures::sync::mpsc::Sender<collect::State>,
 ) -> Result<(), failure::Error> {
+    use futures::Sink;
+
     #[async]
     for _ in util::every(
         log.clone(),
@@ -354,11 +355,7 @@ fn load_modules(
         .plant
         .iter()
         .map(|(uuid, plant)| {
-            let db_module = db.ensure_module(*uuid, &plant.name)?;
-            debug!(log, "loaded module: {:?}", db_module);
-
             Ok(sync::Arc::new(model::ModuleConfig {
-                id: db_module.id,
                 uuid: *uuid,
                 name: plant.name.clone(),
                 description: plant.description.clone(),

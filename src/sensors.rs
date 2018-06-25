@@ -6,7 +6,8 @@ use futures;
 use i2cdev;
 use tokio;
 
-use futures::prelude::*;
+use futures::prelude::async;
+use futures::prelude::await;
 
 pub struct Ads1x15Sampler {
     task_tx: futures::sync::mpsc::Sender<Task>,
@@ -35,7 +36,7 @@ impl Ads1x15Sampler {
         &self,
         i2c_addr: u8,
         channel: ads1x15::Channel,
-    ) -> impl Future<Item = f32, Error = failure::Error> {
+    ) -> impl futures::Future<Item = f32, Error = failure::Error> {
         Ads1x15Sampler::sample_impl(self.task_tx.clone(), i2c_addr, channel)
     }
 
@@ -45,6 +46,8 @@ impl Ads1x15Sampler {
         i2c_addr: u8,
         channel: ads1x15::Channel,
     ) -> Result<f32, failure::Error> {
+        use futures::Sink;
+
         let (result_tx, result_rx) = futures::sync::oneshot::channel();
         await!(task_tx.send(Task {
             result_tx,
@@ -63,21 +66,21 @@ impl Ads1x15Sampler {
         D: i2cdev::core::I2CDevice + 'static,
         <D as i2cdev::core::I2CDevice>::Error: Send + Sync + 'static,
     {
+        use futures::Future;
+
         #[async]
         for task in task_rx {
             let i2c_addr = task.i2c_addr;
             let channel = task.channel;
+            let result = await!(
+                devices
+                    .get_mut(&i2c_addr)
+                    .ok_or_else(|| failure::err_msg(format!("No device with address {}", i2c_addr)))
+                    .unwrap()
+                    .read_single_ended(channel)
+            ).map_err(|e| e.into());
 
-            task.result_tx
-                .send(
-                    devices
-                        .get_mut(&i2c_addr)
-                        .ok_or_else(|| {
-                            failure::err_msg(format!("No device with address {}", i2c_addr))
-                        })
-                        .and_then(|r| r.read_single_ended(channel).map_err(failure::Error::from)),
-                )
-                .unwrap();
+            task.result_tx.send(result).unwrap();
         }
         Ok(())
     }

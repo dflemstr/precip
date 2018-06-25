@@ -1,123 +1,40 @@
 use chrono;
 use uuid;
 
-use diesel::sql_types::Float8;
-use diesel::sql_types::Integer;
-use diesel::sql_types::Timestamptz;
-
-use super::schema::global_sample;
-use super::schema::module;
-use super::schema::pump_event;
-use super::schema::sample;
-
-#[derive(Debug, Identifiable, Associations, Queryable)]
-#[table_name = "module"]
-pub struct Module {
-    pub id: i32,
-    pub uuid: uuid::Uuid,
-    pub name: String,
-}
-
-#[derive(Debug, Insertable, AsChangeset)]
-#[table_name = "module"]
-pub struct NewModule {
-    pub uuid: uuid::Uuid,
-    pub name: String,
-}
-
-#[derive(Debug, Identifiable, Associations, Queryable)]
-#[table_name = "sample"]
-pub struct Sample {
-    pub id: i32,
-    pub created: chrono::DateTime<chrono::Utc>,
-    pub module_id: i32,
-    pub moisture: f64,
-    pub raw_voltage: f64,
-}
-
-#[derive(Debug, Insertable, AsChangeset)]
-#[table_name = "sample"]
-pub struct NewSample {
-    pub created: chrono::DateTime<chrono::Utc>,
-    pub module_id: i32,
-    pub moisture: f64,
-    pub raw_voltage: f64,
-}
-
-#[derive(Debug, QueryableByName)]
+#[derive(Debug)]
 pub struct SampleTimeseries {
-    #[sql_type = "Integer"]
-    pub module_id: i32,
-    #[sql_type = "Timestamptz"]
+    pub module_uuid: uuid::Uuid,
     pub slice: chrono::DateTime<chrono::Utc>,
-    #[sql_type = "Float8"]
     pub min_raw_voltage: f64,
-    #[sql_type = "Float8"]
     pub max_raw_voltage: f64,
-    #[sql_type = "Float8"]
     pub p25_raw_voltage: f64,
-    #[sql_type = "Float8"]
     pub p50_raw_voltage: f64,
-    #[sql_type = "Float8"]
     pub p75_raw_voltage: f64,
 }
 
-#[derive(Debug, QueryableByName)]
+#[derive(Debug)]
 pub struct SampleRange {
-    #[sql_type = "Integer"]
-    pub module_id: i32,
-    #[sql_type = "Float8"]
+    pub module_uuid: uuid::Uuid,
     pub min_raw_voltage: f64,
-    #[sql_type = "Float8"]
     pub max_raw_voltage: f64,
 }
 
-#[derive(Debug, QueryableByName)]
+#[derive(Debug)]
 pub struct Stats {
-    #[sql_type = "Integer"]
-    pub module_id: i32,
-    #[sql_type = "Float8"]
+    pub module_uuid: uuid::Uuid,
     pub min_moisture: f64,
-    #[sql_type = "Float8"]
     pub max_moisture: f64,
-    #[sql_type = "Float8"]
     pub last_moisture: f64,
 }
 
-#[derive(Debug, QueryableByName)]
+#[derive(Debug)]
 pub struct GlobalStats {
-    #[sql_type = "Float8"]
     pub temperature: f64,
 }
 
-#[derive(Debug, Identifiable, Associations, Queryable, QueryableByName)]
-#[table_name = "pump_event"]
+#[derive(Debug)]
 pub struct PumpEvent {
-    pub id: i32,
     pub created: chrono::DateTime<chrono::Utc>,
-    pub module_id: i32,
+    pub module_uuid: uuid::Uuid,
     pub pump_running: bool,
-}
-
-#[derive(Debug, Insertable, AsChangeset)]
-#[table_name = "pump_event"]
-pub struct NewPumpEvent {
-    pub created: chrono::DateTime<chrono::Utc>,
-    pub module_id: i32,
-    pub pump_running: bool,
-}
-
-#[derive(Debug, Identifiable, Associations, Queryable)]
-#[table_name = "global_sample"]
-pub struct GlobalSample {
-    pub id: i32,
-    pub created: chrono::DateTime<chrono::Utc>,
-    pub temperature: f64,
-}
-
-#[derive(Debug, Insertable, AsChangeset)]
-#[table_name = "global_sample"]
-pub struct NewGlobalSample {
-    pub created: chrono::DateTime<chrono::Utc>,
-    pub temperature: f64,
 }
