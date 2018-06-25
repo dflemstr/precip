@@ -5,7 +5,7 @@ pub struct ModuleConfig {
     pub uuid: uuid::Uuid,
     pub name: String,
     pub description: String,
-    pub moisture_i2c_address: u8,
+    pub moisture_i2c_address: u16,
     pub moisture_channel: ads1x15::Channel,
     pub moisture_distance: f64,
     pub pump_channel: u64,

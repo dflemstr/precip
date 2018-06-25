@@ -33,7 +33,7 @@ pub struct Moisture {
 
 #[derive(Debug)]
 pub struct MoistureChannel {
-    pub i2c_address: u8,
+    pub i2c_address: u16,
     pub analog_pin: u8,
 }
 
@@ -50,7 +50,7 @@ where
     let parts = raw.split('-').collect::<Vec<_>>();
 
     if parts.len() == 2 {
-        let i2c_address = u8::from_str_radix(parts[0], 16).map_err(|e| {
+        let i2c_address = u16::from_str_radix(parts[0], 16).map_err(|e| {
             serde::de::Error::invalid_value(
                 serde::de::Unexpected::Str(parts[0]),
                 &format!("a valid hexadecimal integer: {}", e).as_str(),

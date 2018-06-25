@@ -15,13 +15,13 @@ pub struct Ads1x15Sampler {
 
 struct Task {
     result_tx: futures::sync::oneshot::Sender<Result<f32, failure::Error>>,
-    i2c_addr: u8,
+    i2c_addr: u16,
     channel: ads1x15::Channel,
 }
 
 impl Ads1x15Sampler {
     pub fn start<D>(
-        devices: collections::HashMap<u8, ads1x15::Ads1x15<D>>,
+        devices: collections::HashMap<u16, ads1x15::Ads1x15<D>>,
     ) -> Result<Self, failure::Error>
     where
         D: i2cdev::core::I2CDevice + Send + 'static,
@@ -34,7 +34,7 @@ impl Ads1x15Sampler {
 
     pub fn sample(
         &self,
-        i2c_addr: u8,
+        i2c_addr: u16,
         channel: ads1x15::Channel,
     ) -> impl futures::Future<Item = f32, Error = failure::Error> {
         Ads1x15Sampler::sample_impl(self.task_tx.clone(), i2c_addr, channel)
@@ -43,7 +43,7 @@ impl Ads1x15Sampler {
     #[async]
     fn sample_impl(
         task_tx: futures::sync::mpsc::Sender<Task>,
-        i2c_addr: u8,
+        i2c_addr: u16,
         channel: ads1x15::Channel,
     ) -> Result<f32, failure::Error> {
         use futures::Sink;
@@ -59,7 +59,7 @@ impl Ads1x15Sampler {
 
     #[async]
     fn sample_worker<D>(
-        mut devices: collections::HashMap<u8, ads1x15::Ads1x15<D>>,
+        mut devices: collections::HashMap<u16, ads1x15::Ads1x15<D>>,
         task_rx: futures::sync::mpsc::Receiver<Task>,
     ) -> Result<(), ()>
     where
