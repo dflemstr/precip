@@ -73,7 +73,7 @@ fn main() -> Result<(), failure::Error> {
     fs::File::open(config_path)?.read_to_string(&mut config_string)?;
     let config = toml::from_str(&config_string)?;
 
-    let db = sync::Arc::new(db::Db::connect(log.clone(), &["127.0.0.1:8086"])?);
+    let db = sync::Arc::new(db::Db::connect(log.clone(), &["127.0.0.1:8089"])?);
 
     let loaded_modules = sync::Arc::new(load_modules(log.clone(), &config, &db)?);
 
