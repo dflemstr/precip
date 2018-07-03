@@ -36,3 +36,6 @@ uuid = { version = "0.6.5", features = ["serde"] }
 [patch.crates-io]
 i2csensors = { git = "https://github.com/dflemstr/i2cdev-sensors.git", branch = "upgrade-i2cdev" }
 i2cdev-bmp280 = { git = "https://github.com/dflemstr/i2cdev-sensors.git", branch = "upgrade-i2cdev" }
+
+[profile.release]
+debug = true
