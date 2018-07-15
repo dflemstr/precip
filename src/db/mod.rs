@@ -6,18 +6,26 @@ use uuid;
 
 pub mod model;
 
-pub struct Db {
+pub struct Db<'a> {
     log: slog::Logger,
-    client: influent::client::udp::UdpClient<'static>,
+    client: influent::client::http::HttpClient<'a>,
 }
 
-impl Db {
-    pub fn connect(log: slog::Logger, hosts: &[&'static str]) -> Result<Self, failure::Error> {
+impl<'a> Db<'a> {
+    pub fn connect(
+        log: slog::Logger,
+        credentials: influent::client::Credentials<'a>,
+        hosts: Vec<String>,
+    ) -> Result<Self, failure::Error> {
         let serializer = influent::serializer::line::LineSerializer::new();
-        let mut client = influent::client::udp::UdpClient::new(Box::new(serializer));
+        let mut client = influent::client::http::HttpClient::new(
+            credentials,
+            Box::new(serializer),
+            Box::new(influent::hurl::hyper::HyperHurl::new()),
+        );
 
         for host in hosts {
-            client.add_host(host);
+            client.add_host(leak_static_str(host));
         }
 
         Ok(Db { log, client })
@@ -88,9 +96,19 @@ impl Db {
         &self,
         m_id: uuid::Uuid,
     ) -> Result<(Option<f64>, Option<f64>), failure::Error> {
-        let result = self.client
-            .query(format!("select min(moisture), max(moisture) from plant where uuid = '{}'", m_id), Some(influent::client::Precision::Nanoseconds))
+        use influent::client::Client;
+
+        let result = self
+            .client
+            .query(
+                format!(
+                    "select min(moisture), max(moisture) from plant where uuid = '{}'",
+                    m_id
+                ),
+                Some(influent::client::Precision::Nanoseconds),
+            )
             .map_err(from_influent_error)?;
+
         info!(self.log, "Query result: {:?}", result);
         Ok((None, None))
     }
@@ -119,8 +137,8 @@ impl Db {
 }
 
 fn to_influx_timestamp<Tz>(t: chrono::DateTime<Tz>) -> i64
-    where
-        Tz: chrono::TimeZone,
+where
+    Tz: chrono::TimeZone,
 {
     t.timestamp() * 1_000_000_000 + t.timestamp_subsec_nanos() as i64
 }
@@ -140,5 +158,15 @@ fn from_influent_error(err: influent::client::ClientError) -> failure::Error {
             failure::err_msg(format!("unexpected error: {}", m))
         }
         influent::client::ClientError::Unknown => failure::err_msg("unknown error"),
+    }
+}
+
+fn leak_static_str(s: String) -> &'static str {
+    // TODO: this is a hack due to an annoyance in the influent API.  With async/await in std, this
+    // should be avoidable, due to better lifetime support in async code.
+    unsafe {
+        let ret = ::std::mem::transmute(&s as &str);
+        ::std::mem::forget(s);
+        ret
     }
 }

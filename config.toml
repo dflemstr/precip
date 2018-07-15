@@ -1,3 +1,11 @@
+[db]
+hosts = ["http://localhost:8086"]
+
+[db.credentials]
+username = "precip"
+password = "hunter2"
+database = "precip"
+
 [plant.a9ccd14f-eedf-48a7-bd6c-9fefab0ddeea]
 name = "Basil"
 description = """

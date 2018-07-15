@@ -2,7 +2,7 @@
 
 extern crate ads1x15;
 extern crate chrono;
-extern crate dotenv;
+extern crate config as config_rs;
 #[macro_use]
 extern crate failure;
 extern crate futures_await as futures;
@@ -30,13 +30,10 @@ extern crate serde_json;
 extern crate structopt;
 extern crate sysfs_gpio;
 extern crate tokio;
-extern crate toml;
 extern crate uuid;
 
 use std::collections;
 use std::env;
-use std::ffi;
-use std::fs;
 use std::sync;
 use std::thread;
 use std::time;
@@ -55,7 +52,6 @@ pub mod util;
 
 fn main() -> Result<(), failure::Error> {
     use itertools::Itertools;
-    use std::io::Read;
     use structopt::StructOpt;
 
     let options = options::Options::from_args();
@@ -63,19 +59,21 @@ fn main() -> Result<(), failure::Error> {
     let _log_scope = slog_scope::set_global_logger(log.clone());
     slog_stdlog::init()?;
 
-    if let Err(e) = dotenv::dotenv() {
-        warn!(log, "Failed to read .env: {}", e);
-    }
+    let mut config = config_rs::Config::default();
+    config.merge(config_rs::File::with_name("precip"))?;
+    config.merge(config_rs::File::with_name("precip-secret"))?;
+    config.merge(config_rs::File::with_name("/etc/precip/config"))?;
+    config.merge(config_rs::File::with_name("/etc/precip/config-secret"))?;
+    config.merge(config_rs::Environment::with_prefix("PRECIP"))?;
+    let config = config.try_into::<config::Config>()?;
 
-    let mut config_string = String::new();
-    let config_path =
-        env::var_os("PRECIP_CONFIG").unwrap_or_else(|| ffi::OsString::from("config.toml"));
-    fs::File::open(config_path)?.read_to_string(&mut config_string)?;
-    let config = toml::from_str(&config_string)?;
+    let db = sync::Arc::new(db::Db::connect(
+        log.clone(),
+        config.db.credentials.into(),
+        config.db.hosts,
+    )?);
 
-    let db = sync::Arc::new(db::Db::connect(log.clone(), &["127.0.0.1:8089"])?);
-
-    let loaded_modules = sync::Arc::new(load_modules(log.clone(), &config, &db)?);
+    let loaded_modules = sync::Arc::new(load_modules(config.plant)?);
 
     let dacs = (*loaded_modules)
         .iter()
@@ -202,7 +200,7 @@ fn init_log(options: &options::Options) -> Result<slog::Logger, failure::Error> 
 fn sample_global_job<D>(
     log: slog::Logger,
     mut bmp280: i2cdev_bmp280::BMP280<D>,
-    db: sync::Arc<db::Db>,
+    db: sync::Arc<db::Db<'static>>,
 ) -> Result<(), failure::Error>
 where
     D: i2cdev::core::I2CDevice + Sized + 'static,
@@ -226,7 +224,7 @@ fn sample_module_job(
     log: slog::Logger,
     module: sync::Arc<model::ModuleConfig>,
     sampler: sync::Arc<sensors::Ads1x15Sampler>,
-    db: sync::Arc<db::Db>,
+    db: sync::Arc<db::Db<'static>>,
 ) -> Result<(), failure::Error> {
     let mut last_report = time::Instant::now();
     let pump = sync::Arc::new(pumps::Pump::new(log.clone(), module.pump_channel)?);
@@ -311,7 +309,7 @@ fn compute_moisture(
 fn collect_stats_job(
     log: slog::Logger,
     loaded_modules: sync::Arc<Vec<sync::Arc<model::ModuleConfig>>>,
-    db: sync::Arc<db::Db>,
+    db: sync::Arc<db::Db<'static>>,
     state_tx: futures::sync::mpsc::Sender<collect::State>,
 ) -> Result<(), failure::Error> {
     use futures::Sink;
@@ -347,18 +345,15 @@ fn collect_stats_job(
 }
 
 fn load_modules(
-    log: slog::Logger,
-    config: &config::Config,
-    db: &db::Db,
+    plant: collections::HashMap<uuid::Uuid, config::Plant>,
 ) -> Result<Vec<sync::Arc<model::ModuleConfig>>, failure::Error> {
-    config
-        .plant
-        .iter()
+    plant
+        .into_iter()
         .map(|(uuid, plant)| {
             Ok(sync::Arc::new(model::ModuleConfig {
-                uuid: *uuid,
-                name: plant.name.clone(),
-                description: plant.description.clone(),
+                uuid,
+                name: plant.name,
+                description: plant.description,
                 min_moisture: plant.moisture.min,
                 max_moisture: plant.moisture.max,
                 moisture_voltage_dry: plant.moisture.voltage_dry,

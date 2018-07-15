@@ -2,15 +2,30 @@ use std::char;
 use std::collections;
 use std::u8;
 
+use influent;
 use serde;
 use uuid;
 
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize)]
 pub struct Config {
+    pub db: Db,
     pub plant: collections::HashMap<uuid::Uuid, Plant>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize)]
+pub struct Db {
+    pub hosts: Vec<String>,
+    pub credentials: DbCredentials,
+}
+
+#[derive(Clone, Debug, Deserialize)]
+pub struct DbCredentials {
+    pub username: String,
+    pub password: String,
+    pub database: String,
+}
+
+#[derive(Clone, Debug, Deserialize)]
 pub struct Plant {
     pub name: String,
     pub description: String,
@@ -18,7 +33,7 @@ pub struct Plant {
     pub pump: Pump,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize)]
 pub struct Moisture {
     #[serde(deserialize_with = "deserialize_moisture_channel")]
     pub channel: MoistureChannel,
@@ -31,13 +46,13 @@ pub struct Moisture {
     pub max: f64,
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct MoistureChannel {
     pub i2c_address: u16,
     pub analog_pin: u8,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize)]
 pub struct Pump {
     pub channel: u8,
 }
@@ -115,5 +130,25 @@ where
             serde::de::Unexpected::Str(&raw),
             &"a number with a length unit, such as \"2.3cm\"",
         ))
+    }
+}
+
+impl From<DbCredentials> for influent::client::Credentials<'static> {
+    fn from(credentials: DbCredentials) -> Self {
+        influent::client::Credentials {
+            username: leak_static_str(credentials.username),
+            password: leak_static_str(credentials.password),
+            database: leak_static_str(credentials.database),
+        }
+    }
+}
+
+fn leak_static_str(s: String) -> &'static str {
+    // TODO: this is a hack due to an annoyance in the influent API.  With async/await in std, this
+    // should be avoidable, due to better lifetime support in async code.
+    unsafe {
+        let ret = ::std::mem::transmute(&s as &str);
+        ::std::mem::forget(s);
+        ret
     }
 }
