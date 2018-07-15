@@ -88,6 +88,10 @@ impl Db {
         &self,
         m_id: uuid::Uuid,
     ) -> Result<(Option<f64>, Option<f64>), failure::Error> {
+        let result = self.client
+            .query(format!("select min(moisture), max(moisture) from plant where uuid = '{}'", m_id), Some(influent::client::Precision::Nanoseconds))
+            .map_err(from_influent_error)?;
+        info!(self.log, "Query result: {:?}", result);
         Ok((None, None))
     }
 
@@ -115,8 +119,8 @@ impl Db {
 }
 
 fn to_influx_timestamp<Tz>(t: chrono::DateTime<Tz>) -> i64
-where
-    Tz: chrono::TimeZone,
+    where
+        Tz: chrono::TimeZone,
 {
     t.timestamp() * 1_000_000_000 + t.timestamp_subsec_nanos() as i64
 }
