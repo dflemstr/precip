@@ -34,6 +34,7 @@ extern crate uuid;
 
 use std::collections;
 use std::env;
+use std::fmt;
 use std::sync;
 use std::thread;
 use std::time;
@@ -60,11 +61,23 @@ fn main() -> Result<(), failure::Error> {
     slog_stdlog::init()?;
 
     let mut config = config_rs::Config::default();
-    config.merge(config_rs::File::with_name("precip"))?;
-    config.merge(config_rs::File::with_name("precip-secret"))?;
-    config.merge(config_rs::File::with_name("/etc/precip/config"))?;
-    config.merge(config_rs::File::with_name("/etc/precip/config-secret"))?;
-    config.merge(config_rs::Environment::with_prefix("PRECIP"))?;
+    warn_err(&log, config.merge(config_rs::File::with_name("precip")));
+    warn_err(
+        &log,
+        config.merge(config_rs::File::with_name("precip-secret")),
+    );
+    warn_err(
+        &log,
+        config.merge(config_rs::File::with_name("/etc/precip/config")),
+    );
+    warn_err(
+        &log,
+        config.merge(config_rs::File::with_name("/etc/precip/config-secret")),
+    );
+    warn_err(
+        &log,
+        config.merge(config_rs::Environment::with_prefix("PRECIP")),
+    );
     let config = config.try_into::<config::Config>()?;
 
     let db = sync::Arc::new(db::Db::connect(
@@ -371,4 +384,14 @@ fn load_modules(
             }))
         })
         .collect()
+}
+
+fn warn_err<A, E>(log: &slog::Logger, result: Result<A, E>)
+where
+    E: fmt::Display,
+{
+    match result {
+        Err(err) => warn!(log, "{}", err),
+        Ok(_) => (),
+    }
 }
