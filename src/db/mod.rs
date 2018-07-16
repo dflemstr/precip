@@ -113,7 +113,19 @@ impl<'a> Db<'a> {
         let results: QueryResults = serde_json::de::from_str(&results)?;
         info!(self.log, "Query results: {:?}", results);
 
-        Ok((None, None))
+        match results.results.as_slice() {
+            [result] => match result.series.as_slice() {
+                [series] => match series.values.as_slice() {
+                    [value] => match value.as_slice() {
+                        [_, min, max] => Ok((Some(*min), Some(*max))),
+                        _ => Ok((None, None)),
+                    },
+                    _ => Ok((None, None)),
+                },
+                _ => Ok((None, None)),
+            },
+            _ => Ok((None, None)),
+        }
     }
 
     pub fn collect_samples_range(&self) -> Result<Vec<model::SampleRange>, failure::Error> {
