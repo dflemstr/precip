@@ -61,23 +61,12 @@ fn main() -> Result<(), failure::Error> {
     slog_stdlog::init()?;
 
     let mut config = config_rs::Config::default();
-    warn_err(&log, config.merge(config_rs::File::with_name("precip")));
-    warn_err(
-        &log,
-        config.merge(config_rs::File::with_name("precip-secret")),
-    );
-    warn_err(
-        &log,
-        config.merge(config_rs::File::with_name("/etc/precip/config")),
-    );
-    warn_err(
-        &log,
-        config.merge(config_rs::File::with_name("/etc/precip/config-secret")),
-    );
-    warn_err(
-        &log,
-        config.merge(config_rs::Environment::with_prefix("PRECIP")),
-    );
+    config.merge(config_rs::File::with_name("config").required(false))?;
+    config.merge(config_rs::File::with_name("config-secret").required(false))?;
+    config.merge(config_rs::File::with_name("/etc/precip/config").required(false))?;
+    config.merge(config_rs::File::with_name("/etc/precip/config-secret").required(false))?;
+    config.merge(config_rs::Environment::with_prefix("PRECIP"))?;
+
     let config = config.try_into::<config::Config>()?;
 
     let db = sync::Arc::new(db::Db::connect(
@@ -384,14 +373,4 @@ fn load_modules(
             }))
         })
         .collect()
-}
-
-fn warn_err<A, E>(log: &slog::Logger, result: Result<A, E>)
-where
-    E: fmt::Display,
-{
-    match result {
-        Err(err) => warn!(log, "{}", err),
-        Ok(_) => (),
-    }
 }
