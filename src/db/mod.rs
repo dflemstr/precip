@@ -112,19 +112,28 @@ impl<'a> Db<'a> {
 
         let results: QueryResults = serde_json::de::from_str(&results)?;
 
-        match results.results.as_slice() {
-            [result] => match result.series.as_slice() {
-                [series] => match series.values.as_slice() {
-                    [value] => match value.as_slice() {
-                        [_, min, max] => Ok((Some(*min), Some(*max))),
-                        _ => Ok((None, None)),
-                    },
-                    _ => Ok((None, None)),
+        Ok(results
+            .results
+            .into_iter()
+            .find(|r| r.statement_id == 0)
+            .and_then(|result| result.series.into_iter().find(|s| s.name == "plant"))
+            .map_or_else(
+                || (None, None),
+                |series| {
+                    (
+                        series
+                            .columns
+                            .iter()
+                            .position(|c| c == "min")
+                            .map(|i| series.values[0][i]),
+                        series
+                            .columns
+                            .iter()
+                            .position(|c| c == "max")
+                            .map(|i| series.values[0][i]),
+                    )
                 },
-                _ => Ok((None, None)),
-            },
-            _ => Ok((None, None)),
-        }
+            ))
     }
 
     pub fn collect_samples_range(&self) -> Result<Vec<model::SampleRange>, failure::Error> {
@@ -193,6 +202,7 @@ struct QueryResults {
 #[derive(Clone, Debug, Deserialize)]
 struct QueryResult {
     statement_id: u32,
+    #[serde(default)]
     series: Vec<QuerySeries>,
 }
 
