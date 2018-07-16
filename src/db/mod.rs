@@ -111,7 +111,6 @@ impl<'a> Db<'a> {
             .map_err(from_influent_error)?;
 
         let results: QueryResults = serde_json::de::from_str(&results)?;
-        info!(self.log, "Query results: {:?}", results);
 
         match results.results.as_slice() {
             [result] => match result.series.as_slice() {
