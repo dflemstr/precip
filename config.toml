@@ -87,5 +87,5 @@ description = """
 
 Sunny, should have long water/dry cycles, normal fertilization, **edible**.
 """
-moisture = { channel = "49-3", distance = "300cm", voltage_wet = 1.680187463760376, voltage_dry = 2.6495625972747803, min = 0.1, max = 0.4 }
+moisture = { channel = "49-3", distance = "300cm", voltage_wet = 1.680187463760376, voltage_dry = 2.6495625972747803, min = 0.01, max = 0.02 }
 pump = { channel = 21 }
