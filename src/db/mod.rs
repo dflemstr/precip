@@ -1,6 +1,7 @@
 use chrono;
 use failure;
 use influent;
+use serde_json;
 use slog;
 use uuid;
 
@@ -98,7 +99,7 @@ impl<'a> Db<'a> {
     ) -> Result<(Option<f64>, Option<f64>), failure::Error> {
         use influent::client::Client;
 
-        let result = self
+        let results = self
             .client
             .query(
                 format!(
@@ -109,7 +110,9 @@ impl<'a> Db<'a> {
             )
             .map_err(from_influent_error)?;
 
-        info!(self.log, "Query result: {:?}", result);
+        let results: QueryResults = serde_json::de::from_str(&results)?;
+        info!(self.log, "Query results: {:?}", results);
+
         Ok((None, None))
     }
 
@@ -169,4 +172,22 @@ fn leak_static_str(s: String) -> &'static str {
         ::std::mem::forget(s);
         ret
     }
+}
+
+#[derive(Clone, Debug, Deserialize)]
+struct QueryResults {
+    results: Vec<QueryResult>,
+}
+
+#[derive(Clone, Debug, Deserialize)]
+struct QueryResult {
+    statement_id: u32,
+    series: Vec<QuerySeries>,
+}
+
+#[derive(Clone, Debug, Deserialize)]
+struct QuerySeries {
+    name: String,
+    columns: Vec<String>,
+    values: Vec<Vec<f64>>,
 }

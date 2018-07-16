@@ -34,7 +34,6 @@ extern crate uuid;
 
 use std::collections;
 use std::env;
-use std::fmt;
 use std::sync;
 use std::thread;
 use std::time;
