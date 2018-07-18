@@ -88,7 +88,7 @@ fn main() -> Result<(), failure::Error> {
         .collect::<Result<collections::HashMap<_, _>, failure::Error>>()?;
 
     let bmp280_i2c_dev = i2cdev_bmp280::get_linux_bmp280_i2c_device().unwrap();
-    let bmp280 = i2cdev_bmp280::BMP280::new(
+    let bmp280 = sync::Arc::new(sync::Mutex::new(i2cdev_bmp280::BMP280::new(
         bmp280_i2c_dev,
         i2cdev_bmp280::BMP280Settings {
             compensation: i2cdev_bmp280::BMP280CompensationAlgorithm::Float,
@@ -98,7 +98,7 @@ fn main() -> Result<(), failure::Error> {
             osrs_p: i2cdev_bmp280::BMP280PressureOversampling::UltraHighResolution,
             power_mode: i2cdev_bmp280::BMP280PowerMode::NormalMode,
         },
-    )?;
+    )?));
 
     let (state_tx, state_rx) = futures::sync::mpsc::channel(0);
 
@@ -114,35 +114,26 @@ fn main() -> Result<(), failure::Error> {
     };
 
     tokio::run(futures::future::lazy(move || {
-        use futures::Future;
-
         let sampler = sync::Arc::new(sensors::Ads1x15Sampler::start(dacs).unwrap());
 
-        tokio::spawn(
-            collect_stats_job(log.clone(), loaded_modules.clone(), db.clone(), state_tx).map_err({
-                let log = log.clone();
-                move |e| error!(log, "collect job failed: {}", e)
-            }),
-        );
+        tokio::spawn(collect_stats_job_failsafe(
+            log.clone(),
+            loaded_modules.clone(),
+            db.clone(),
+            state_tx,
+        ));
 
-        tokio::spawn(sample_global_job(log.clone(), bmp280, db.clone()).map_err({
-            let log = log.clone();
-            move |e| error!(log, "sampling global sensors failed: {}", e)
-        }));
+        tokio::spawn(sample_global_job_failsafe(log.clone(), bmp280, db.clone()));
 
-        tokio::spawn(update_indices(log.clone(), db.clone()).map_err({
-            let log = log.clone();
-            move |e| error!(log, "updating indices failed: {}", e)
-        }));
+        tokio::spawn(update_indices_job_failsafe(log.clone(), db.clone()));
 
         for module in &*loaded_modules {
-            tokio::spawn(
-                sample_module_job(log.clone(), module.clone(), sampler.clone(), db.clone())
-                    .map_err({
-                        let log = log.clone();
-                        move |e| error!(log, "sampling module failed: {}", e)
-                    }),
-            );
+            tokio::spawn(sample_module_job_failsafe(
+                log.clone(),
+                module.clone(),
+                sampler.clone(),
+                db.clone(),
+            ));
         }
 
         info!(log, "started");
@@ -204,9 +195,26 @@ fn init_log(options: &options::Options) -> Result<slog::Logger, failure::Error> 
 }
 
 #[async]
+fn sample_global_job_failsafe<D>(
+    log: slog::Logger,
+    bmp280: sync::Arc<sync::Mutex<i2cdev_bmp280::BMP280<D>>>,
+    db: sync::Arc<db::Db<'static>>,
+) -> Result<(), ()>
+where
+    D: i2cdev::core::I2CDevice + Sized + 'static,
+    D::Error: Send + Sync + 'static,
+{
+    loop {
+        if let Err(e) = await!(sample_global_job(log.clone(), bmp280.clone(), db.clone())) {
+            error!(log, "sampling global sensors failed: {}", e);
+        }
+    }
+}
+
+#[async]
 fn sample_global_job<D>(
     log: slog::Logger,
-    mut bmp280: i2cdev_bmp280::BMP280<D>,
+    bmp280: sync::Arc<sync::Mutex<i2cdev_bmp280::BMP280<D>>>,
     db: sync::Arc<db::Db<'static>>,
 ) -> Result<(), failure::Error>
 where
@@ -220,7 +228,8 @@ where
         time::Duration::from_secs(1),
     ) {
         let now = chrono::Utc::now();
-        let temperature = i2csensors::Thermometer::temperature_celsius(&mut bmp280)? as f64;
+        let temperature =
+            i2csensors::Thermometer::temperature_celsius(&mut *bmp280.lock().unwrap())? as f64;
 
         if let Err(e) = db.insert_global_measurement(now, temperature) {
             warn!(log, "failed to insert plant measurement: {}", e);
@@ -230,7 +239,22 @@ where
 }
 
 #[async]
-fn update_indices(log: slog::Logger, db: sync::Arc<db::Db<'static>>) -> Result<(), failure::Error> {
+fn update_indices_job_failsafe(
+    log: slog::Logger,
+    db: sync::Arc<db::Db<'static>>,
+) -> Result<(), ()> {
+    loop {
+        if let Err(e) = await!(update_indices_job(log.clone(), db.clone())) {
+            error!(log, "updating indices failed: {}", e);
+        }
+    }
+}
+
+#[async]
+fn update_indices_job(
+    log: slog::Logger,
+    db: sync::Arc<db::Db<'static>>,
+) -> Result<(), failure::Error> {
     #[async]
     for _ in util::every(
         log.clone(),
@@ -242,6 +266,25 @@ fn update_indices(log: slog::Logger, db: sync::Arc<db::Db<'static>>) -> Result<(
         }
     }
     Ok(())
+}
+
+#[async]
+fn sample_module_job_failsafe(
+    log: slog::Logger,
+    module: sync::Arc<model::ModuleConfig>,
+    sampler: sync::Arc<sensors::Ads1x15Sampler>,
+    db: sync::Arc<db::Db<'static>>,
+) -> Result<(), ()> {
+    loop {
+        if let Err(e) = await!(sample_module_job(
+            log.clone(),
+            module.clone(),
+            sampler.clone(),
+            db.clone()
+        )) {
+            error!(log, "error when sampling module: {}", e);
+        }
+    }
 }
 
 #[async]
@@ -330,6 +373,25 @@ fn compute_moisture(
         .unwrap_or(module.moisture_voltage_dry);
     let moisture_voltage_range = moisture_voltage_dry - moisture_voltage_wet;
     1.0 - (moisture_voltage - moisture_voltage_wet) / moisture_voltage_range
+}
+
+#[async]
+fn collect_stats_job_failsafe(
+    log: slog::Logger,
+    loaded_modules: sync::Arc<Vec<sync::Arc<model::ModuleConfig>>>,
+    db: sync::Arc<db::Db<'static>>,
+    state_tx: futures::sync::mpsc::Sender<collect::State>,
+) -> Result<(), ()> {
+    loop {
+        if let Err(e) = await!(collect_stats_job(
+            log.clone(),
+            loaded_modules.clone(),
+            db.clone(),
+            state_tx.clone(),
+        )) {
+            error!(log, "error when collecting stats: {}", e);
+        }
+    }
 }
 
 #[async]
