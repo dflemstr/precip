@@ -250,7 +250,9 @@ fn sample_module_job(
             moisture_max_voltage,
         );
 
-        db.insert_plant_measurement(now, module.uuid, moisture_voltage)?;
+        if let Err(e) = db.insert_plant_measurement(now, module.uuid, moisture_voltage) {
+            warn!(log, "failed to insert plant measurement: {}", e);
+        }
 
         if pump.running()? {
             if moisture > module.max_moisture {

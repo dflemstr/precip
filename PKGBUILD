@@ -1,6 +1,6 @@
 # Maintainer: David Flemström <david.flemstrom@gmail.com>
 pkgname=precip
-pkgver=0.1.0.r80.g9f3bf25
+pkgver=0.1.0.r140.g7d5e6ce
 pkgrel=1
 pkgdesc='irrigation control system'
 arch=('x86_64' 'armv7h')
