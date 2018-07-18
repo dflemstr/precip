@@ -216,7 +216,10 @@ where
     ) {
         let now = chrono::Utc::now();
         let temperature = i2csensors::Thermometer::temperature_celsius(&mut bmp280)? as f64;
-        db.insert_global_measurement(now, temperature)?;
+
+        if let Err(e) = db.insert_global_measurement(now, temperature)  {
+            warn!(log, "failed to insert plant measurement: {}", e);
+        }
     }
     Ok(())
 }
