@@ -1,4 +1,5 @@
-#![feature(proc_macro, generators, trivial_bounds)]
+#![feature(generators)]
+#![feature(use_extern_macros)]
 
 extern crate ads1x15;
 extern crate chrono;
