@@ -93,6 +93,23 @@ impl<'a> Db<'a> {
         Ok(())
     }
 
+    pub fn update_plant_indices(&self) -> Result<(), failure::Error> {
+        use influent::client::Client;
+
+        self.client
+            .query(
+                "select \
+                 percentile(moisture, 5) as moisture_p05, \
+                 percentile(moisture, 95) as moisture_p95 \
+                 into plant_index from plant where time > now() - 1w group by uuid"
+                    .to_owned(),
+                Some(influent::client::Precision::Nanoseconds),
+            )
+            .map_err(from_influent_error)?;
+
+        Ok(())
+    }
+
     pub fn fetch_module_moisture_voltage_range(
         &self,
         m_id: uuid::Uuid,
@@ -103,7 +120,7 @@ impl<'a> Db<'a> {
             .client
             .query(
                 format!(
-                    "select percentile(moisture, 5) as lo, percentile(moisture, 95) as hi from plant where uuid = '{}'",
+                    "select moisture_p05 as lo, moisture_p95 as hi from plant_index where uuid = '{}'",
                     m_id
                 ),
                 Some(influent::client::Precision::Nanoseconds),

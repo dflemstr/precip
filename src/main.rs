@@ -127,7 +127,12 @@ fn main() -> Result<(), failure::Error> {
 
         tokio::spawn(sample_global_job(log.clone(), bmp280, db.clone()).map_err({
             let log = log.clone();
-            move |e| error!(log, "sampling module failed: {}", e)
+            move |e| error!(log, "sampling global sensors failed: {}", e)
+        }));
+
+        tokio::spawn(update_indices(log.clone(), db.clone()).map_err({
+            let log = log.clone();
+            move |e| error!(log, "updating indices failed: {}", e)
         }));
 
         for module in &*loaded_modules {
@@ -217,8 +222,23 @@ where
         let now = chrono::Utc::now();
         let temperature = i2csensors::Thermometer::temperature_celsius(&mut bmp280)? as f64;
 
-        if let Err(e) = db.insert_global_measurement(now, temperature)  {
+        if let Err(e) = db.insert_global_measurement(now, temperature) {
             warn!(log, "failed to insert plant measurement: {}", e);
+        }
+    }
+    Ok(())
+}
+
+#[async]
+fn update_indices(log: slog::Logger, db: sync::Arc<db::Db<'static>>) -> Result<(), failure::Error> {
+    #[async]
+    for _ in util::every(
+        log.clone(),
+        "update indices".to_owned(),
+        time::Duration::from_secs(60),
+    ) {
+        if let Err(e) = db.update_plant_indices() {
+            warn!(log, "failed to update plant indices: {}", e);
         }
     }
     Ok(())
