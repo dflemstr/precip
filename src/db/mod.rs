@@ -103,7 +103,7 @@ impl<'a> Db<'a> {
             .client
             .query(
                 format!(
-                    "select min(moisture), max(moisture) from plant where uuid = '{}'",
+                    "select percentile(moisture, 5) as lo, percentile(moisture, 95) as hi from plant where uuid = '{}'",
                     m_id
                 ),
                 Some(influent::client::Precision::Nanoseconds),
@@ -124,12 +124,12 @@ impl<'a> Db<'a> {
                         series
                             .columns
                             .iter()
-                            .position(|c| c == "min")
+                            .position(|c| c == "lo")
                             .map(|i| series.values[0][i]),
                         series
                             .columns
                             .iter()
-                            .position(|c| c == "max")
+                            .position(|c| c == "hi")
                             .map(|i| series.values[0][i]),
                     )
                 },

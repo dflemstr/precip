@@ -66,8 +66,6 @@ impl Ads1x15Sampler {
         D: i2cdev::core::I2CDevice + 'static,
         <D as i2cdev::core::I2CDevice>::Error: Send + Sync + 'static,
     {
-        use futures::Future;
-
         #[async]
         for task in task_rx {
             let i2c_addr = task.i2c_addr;
