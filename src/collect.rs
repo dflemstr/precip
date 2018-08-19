@@ -224,14 +224,14 @@ pub fn upload_states_to_s3(
     use futures::Stream;
     use rusoto_s3::S3;
 
-    let s3_client = rusoto_s3::S3Client::simple(rusoto_core::region::Region::EuWest1);
+    let s3_client = rusoto_s3::S3Client::new(rusoto_core::region::Region::EuWest1);
 
     #[async]
     for state in states.map_err(|_| failure::err_msg("state channel poisoned")) {
         let state_json = serde_json::to_vec(&state)?;
 
-        if let Err(e) = await!(s3_client.put_object(&rusoto_s3::PutObjectRequest {
-            body: Some(state_json),
+        if let Err(e) = await!(s3_client.put_object(rusoto_s3::PutObjectRequest {
+            body: Some(state_json.into()),
             bucket: "precip-stats".to_owned(),
             key: "data.json".to_owned(),
             content_type: Some("application/json".to_owned()),

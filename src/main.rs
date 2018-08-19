@@ -1,5 +1,4 @@
 #![feature(generators)]
-#![feature(use_extern_macros)]
 
 extern crate ads1x15;
 extern crate chrono;
@@ -321,29 +320,43 @@ fn sample_module_job(
             warn!(log, "failed to insert plant measurement: {}", e);
         }
 
-        if pump.running()? {
-            if moisture > module.max_moisture {
+        if module.pump_enabled {
+            if pump.running()? {
+                if moisture > module.max_moisture {
+                    info!(
+                        log,
+                        "Turning off pump name={:?} channel={} uuid={}",
+                        module.name,
+                        module.pump_channel,
+                        module.uuid
+                    );
+                    pump.set_running(false)?;
+                    db.insert_pump_measurement(now, module.uuid, false)?;
+                }
+            } else {
+                if moisture < module.min_moisture {
+                    info!(
+                        log,
+                        "Turning on pump name={:?} channel={} uuid={}",
+                        module.name,
+                        module.pump_channel,
+                        module.uuid
+                    );
+                    pump.set_running(true)?;
+                    db.insert_pump_measurement(now, module.uuid, true)?;
+                }
+            }
+        } else {
+            if pump.running()? {
                 info!(
                     log,
-                    "Turning off pump name={:?} channel={} uuid={}",
+                    "Cleaning up turned-on pump name={:?} channel={} uuid={}",
                     module.name,
                     module.pump_channel,
                     module.uuid
                 );
                 pump.set_running(false)?;
                 db.insert_pump_measurement(now, module.uuid, false)?;
-            }
-        } else {
-            if moisture < module.min_moisture {
-                info!(
-                    log,
-                    "Turning on pump name={:?} channel={} uuid={}",
-                    module.name,
-                    module.pump_channel,
-                    module.uuid
-                );
-                pump.set_running(true)?;
-                db.insert_pump_measurement(now, module.uuid, true)?;
             }
         }
 
@@ -455,6 +468,7 @@ fn load_modules(
                     3 => ads1x15::Channel::A3,
                     x => bail!("No such moisture channel: {}", x),
                 },
+                pump_enabled: plant.pump.enabled,
                 pump_channel: plant.pump.channel as u64,
             }))
         })

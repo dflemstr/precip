@@ -52,6 +52,7 @@ pub struct MoistureChannel {
 #[derive(Clone, Debug, Deserialize)]
 pub struct Pump {
     pub channel: u8,
+    pub enabled: bool,
 }
 
 fn deserialize_moisture_channel<'de, D>(deserializer: D) -> Result<MoistureChannel, D::Error>

@@ -8,13 +8,12 @@ use uuid;
 pub mod model;
 
 pub struct Db<'a> {
-    log: slog::Logger,
     client: influent::client::http::HttpClient<'a>,
 }
 
 impl<'a> Db<'a> {
     pub fn connect(
-        log: slog::Logger,
+        _log: slog::Logger,
         credentials: influent::client::Credentials<'a>,
         hosts: Vec<String>,
     ) -> Result<Self, failure::Error> {
@@ -29,7 +28,7 @@ impl<'a> Db<'a> {
             client.add_host(leak_static_str(host));
         }
 
-        Ok(Db { log, client })
+        Ok(Db { client })
     }
 
     pub fn insert_global_measurement(
