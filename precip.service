@@ -9,3 +9,5 @@ ExecStart=/usr/bin/precip -s
 
 [Install]
 WantedBy=multi-user.target
+Wants=network-online.target influxdb.service
+After=network-online.target influxdb.service
