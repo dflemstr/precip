@@ -1,6 +1,8 @@
 use std::collections;
 use std::u8;
 
+use config_rs;
+use failure;
 use influent;
 use serde;
 use uuid;
@@ -53,6 +55,19 @@ pub struct MoistureChannel {
 pub struct Pump {
     pub channel: u8,
     pub enabled: bool,
+}
+
+impl Config {
+    pub fn load() -> Result<Config, failure::Error> {
+        let mut config = config_rs::Config::default();
+        config.merge(config_rs::File::with_name("config").required(false))?;
+        config.merge(config_rs::File::with_name("config-secret").required(false))?;
+        config.merge(config_rs::File::with_name("/etc/precip/config").required(false))?;
+        config.merge(config_rs::File::with_name("/etc/precip/config-secret").required(false))?;
+        config.merge(config_rs::Environment::with_prefix("PRECIP"))?;
+
+        Ok(config.try_into::<Config>()?)
+    }
 }
 
 fn deserialize_moisture_channel<'de, D>(deserializer: D) -> Result<MoistureChannel, D::Error>

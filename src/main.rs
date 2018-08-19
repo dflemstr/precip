@@ -13,9 +13,6 @@ extern crate influent;
 extern crate itertools;
 #[macro_use]
 extern crate slog;
-extern crate rand;
-extern crate rusoto_core;
-extern crate rusoto_s3;
 extern crate serde;
 extern crate slog_async;
 extern crate slog_envlogger;
@@ -35,13 +32,11 @@ extern crate uuid;
 use std::collections;
 use std::env;
 use std::sync;
-use std::thread;
 use std::time;
 
 use futures::prelude::async;
 use futures::prelude::await;
 
-pub mod collect;
 pub mod config;
 pub mod db;
 pub mod model;
@@ -59,14 +54,7 @@ fn main() -> Result<(), failure::Error> {
     let _log_scope = slog_scope::set_global_logger(log.clone());
     slog_stdlog::init()?;
 
-    let mut config = config_rs::Config::default();
-    config.merge(config_rs::File::with_name("config").required(false))?;
-    config.merge(config_rs::File::with_name("config-secret").required(false))?;
-    config.merge(config_rs::File::with_name("/etc/precip/config").required(false))?;
-    config.merge(config_rs::File::with_name("/etc/precip/config-secret").required(false))?;
-    config.merge(config_rs::Environment::with_prefix("PRECIP"))?;
-
-    let config = config.try_into::<config::Config>()?;
+    let config = config::Config::load()?;
 
     let db = sync::Arc::new(db::Db::connect(
         log.clone(),
@@ -82,9 +70,8 @@ fn main() -> Result<(), failure::Error> {
         .unique()
         .map(|addr| {
             let i2c_dev = i2cdev::linux::LinuxI2CDevice::new("/dev/i2c-1", addr)?;
-            Ok((addr, ads1x15::Ads1x15::new_ads1115(i2c_dev)))
-        })
-        .collect::<Result<collections::HashMap<_, _>, failure::Error>>()?;
+            Ok((addr, sync::Arc::new(ads1x15::Ads1x15::new_ads1115(i2c_dev))))
+        }).collect::<Result<collections::HashMap<_, _>, failure::Error>>()?;
 
     let bmp280_i2c_dev = i2cdev_bmp280::get_linux_bmp280_i2c_device().unwrap();
     let bmp280 = sync::Arc::new(sync::Mutex::new(i2cdev_bmp280::BMP280::new(
@@ -99,50 +86,29 @@ fn main() -> Result<(), failure::Error> {
         },
     )?));
 
-    let (state_tx, state_rx) = futures::sync::mpsc::channel(0);
+    let sampler = sync::Arc::new(sensors::Ads1x15Sampler::start(dacs)?);
 
-    let handle = {
-        let log = log.clone();
-        thread::Builder::new()
-            .name("s3-uploader".to_owned())
-            .spawn(|| {
-                tokio::executor::current_thread::block_on_all(collect::upload_states_to_s3(
-                    log, state_rx,
-                ))
-            })?
-    };
-
-    tokio::run(futures::future::lazy(move || {
-        let sampler = sync::Arc::new(sensors::Ads1x15Sampler::start(dacs).unwrap());
-
-        tokio::spawn(collect_stats_job_failsafe(
+    let sample_global_future: Box<futures::Future<Item = _, Error = _> + Send> =
+        Box::new(sample_global_job(log.clone(), bmp280, db.clone()));
+    let update_indices_future: Box<futures::Future<Item = _, Error = _> + Send> =
+        Box::new(update_indices_job(log.clone(), db.clone()));
+    let sample_futures = loaded_modules.iter().map(|module| {
+        Box::new(sample_module_job(
             log.clone(),
-            loaded_modules.clone(),
+            module.clone(),
+            sampler.clone(),
             db.clone(),
-            state_tx,
-        ));
+        )) as Box<futures::Future<Item = _, Error = _> + Send>
+    });
 
-        tokio::spawn(sample_global_job_failsafe(log.clone(), bmp280, db.clone()));
-
-        tokio::spawn(update_indices_job_failsafe(log.clone(), db.clone()));
-
-        for module in &*loaded_modules {
-            tokio::spawn(sample_module_job_failsafe(
-                log.clone(),
-                module.clone(),
-                sampler.clone(),
-                db.clone(),
-            ));
-        }
-
-        info!(log, "started");
-
-        Ok(())
-    }));
-
-    handle.join().unwrap()?;
-
-    Ok(())
+    let mut runtime = tokio::runtime::Runtime::new().unwrap();
+    runtime
+        .block_on(futures::future::select_all(
+            vec![sample_global_future, update_indices_future]
+                .into_iter()
+                .chain(sample_futures),
+        )).map(|r| r.0)
+        .map_err(|r| r.0)
 }
 
 fn init_log(options: &options::Options) -> Result<slog::Logger, failure::Error> {
@@ -188,26 +154,9 @@ fn init_log(options: &options::Options) -> Result<slog::Logger, failure::Error> 
     let drain = slog_async::Async::new(slog_envlogger::new(
         slog::Duplicate::new(term_drain, journald_drain).ignore_res(),
     )).build()
-        .fuse();
+    .fuse();
 
     Ok(slog::Logger::root(drain, o!()))
-}
-
-#[async]
-fn sample_global_job_failsafe<D>(
-    log: slog::Logger,
-    bmp280: sync::Arc<sync::Mutex<i2cdev_bmp280::BMP280<D>>>,
-    db: sync::Arc<db::Db<'static>>,
-) -> Result<(), ()>
-where
-    D: i2cdev::core::I2CDevice + Sized + 'static,
-    D::Error: Send + Sync + 'static,
-{
-    loop {
-        if let Err(e) = await!(sample_global_job(log.clone(), bmp280.clone(), db.clone())) {
-            error!(log, "sampling global sensors failed: {}", e);
-        }
-    }
 }
 
 #[async]
@@ -238,18 +187,6 @@ where
 }
 
 #[async]
-fn update_indices_job_failsafe(
-    log: slog::Logger,
-    db: sync::Arc<db::Db<'static>>,
-) -> Result<(), ()> {
-    loop {
-        if let Err(e) = await!(update_indices_job(log.clone(), db.clone())) {
-            error!(log, "updating indices failed: {}", e);
-        }
-    }
-}
-
-#[async]
 fn update_indices_job(
     log: slog::Logger,
     db: sync::Arc<db::Db<'static>>,
@@ -268,31 +205,16 @@ fn update_indices_job(
 }
 
 #[async]
-fn sample_module_job_failsafe(
+fn sample_module_job<D>(
     log: slog::Logger,
     module: sync::Arc<model::ModuleConfig>,
-    sampler: sync::Arc<sensors::Ads1x15Sampler>,
+    sampler: sync::Arc<sensors::Ads1x15Sampler<D>>,
     db: sync::Arc<db::Db<'static>>,
-) -> Result<(), ()> {
-    loop {
-        if let Err(e) = await!(sample_module_job(
-            log.clone(),
-            module.clone(),
-            sampler.clone(),
-            db.clone()
-        )) {
-            error!(log, "error when sampling module: {}", e);
-        }
-    }
-}
-
-#[async]
-fn sample_module_job(
-    log: slog::Logger,
-    module: sync::Arc<model::ModuleConfig>,
-    sampler: sync::Arc<sensors::Ads1x15Sampler>,
-    db: sync::Arc<db::Db<'static>>,
-) -> Result<(), failure::Error> {
+) -> Result<(), failure::Error>
+where
+    D: i2cdev::core::I2CDevice + Send + 'static,
+    <D as i2cdev::core::I2CDevice>::Error: Send + Sync + 'static,
+{
     let mut last_report = time::Instant::now();
     let pump = sync::Arc::new(pumps::Pump::new(log.clone(), module.pump_channel)?);
 
@@ -388,64 +310,6 @@ fn compute_moisture(
     1.0 - (moisture_voltage - moisture_voltage_wet) / moisture_voltage_range
 }
 
-#[async]
-fn collect_stats_job_failsafe(
-    log: slog::Logger,
-    loaded_modules: sync::Arc<Vec<sync::Arc<model::ModuleConfig>>>,
-    db: sync::Arc<db::Db<'static>>,
-    state_tx: futures::sync::mpsc::Sender<collect::State>,
-) -> Result<(), ()> {
-    loop {
-        if let Err(e) = await!(collect_stats_job(
-            log.clone(),
-            loaded_modules.clone(),
-            db.clone(),
-            state_tx.clone(),
-        )) {
-            error!(log, "error when collecting stats: {}", e);
-        }
-    }
-}
-
-#[async]
-fn collect_stats_job(
-    log: slog::Logger,
-    loaded_modules: sync::Arc<Vec<sync::Arc<model::ModuleConfig>>>,
-    db: sync::Arc<db::Db<'static>>,
-    state_tx: futures::sync::mpsc::Sender<collect::State>,
-) -> Result<(), failure::Error> {
-    use futures::Sink;
-
-    #[async]
-    for _ in util::every(
-        log.clone(),
-        "collect stats".to_owned(),
-        time::Duration::from_secs(60),
-    ) {
-        let created = chrono::Utc::now();
-        let state_tx = state_tx.clone();
-        let samples_timeseries = db.collect_samples_timeseries()?;
-        let samples_range = db.collect_samples_range()?;
-        let pump_events = db.collect_pump_events()?;
-        let stats = db.collect_stats()?;
-        let global_stats = db.collect_global_stats()?;
-        let state = collect::State::new(
-            log.clone(),
-            created,
-            &loaded_modules,
-            &samples_timeseries,
-            &samples_range,
-            &pump_events,
-            &stats,
-            &global_stats,
-        );
-
-        await!(state_tx.send(state))?;
-    }
-
-    Ok(())
-}
-
 fn load_modules(
     plant: collections::HashMap<uuid::Uuid, config::Plant>,
 ) -> Result<Vec<sync::Arc<model::ModuleConfig>>, failure::Error> {
@@ -471,6 +335,5 @@ fn load_modules(
                 pump_enabled: plant.pump.enabled,
                 pump_channel: plant.pump.channel as u64,
             }))
-        })
-        .collect()
+        }).collect()
 }
