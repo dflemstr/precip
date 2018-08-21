@@ -1,5 +1,7 @@
 [Unit]
 Description=Precip irrigation controller service
+Wants=network-online.target
+After=network-online.target
 
 [Service]
 Environment="RUST_BACKTRACE=1"
@@ -11,5 +13,3 @@ RestartSec=5s
 
 [Install]
 WantedBy=multi-user.target
-Wants=network-online.target influxdb.service
-After=network-online.target influxdb.service
