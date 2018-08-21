@@ -269,7 +269,7 @@ fn run_pump_job(
             .and_then(|schedule| schedule.upcoming(chrono::Utc).next())
         {
             await!(tokio::timer::Delay::new(
-                time::Instant::now() + (chrono::Utc::now() - now).to_std()?
+                time::Instant::now() + (now - chrono::Utc::now()).to_std()?
             ));
 
             pump.set_running(true)?;
