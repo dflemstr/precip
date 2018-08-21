@@ -35,6 +35,7 @@ impl<'a> Db<'a> {
         &self,
         now: chrono::DateTime<chrono::Utc>,
         temperature: f64,
+        pressure: f64,
     ) -> Result<(), failure::Error> {
         use influent::client::Client;
 
@@ -43,6 +44,10 @@ impl<'a> Db<'a> {
         measurement.add_field(
             "temperature",
             influent::measurement::Value::Float(temperature),
+        );
+        measurement.add_field(
+            "pressure",
+            influent::measurement::Value::Float(pressure),
         );
 
         self.client

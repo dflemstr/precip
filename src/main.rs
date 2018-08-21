@@ -184,8 +184,10 @@ where
         let now = chrono::Utc::now();
         let temperature =
             i2csensors::Thermometer::temperature_celsius(&mut *bmp280.lock().unwrap())? as f64;
+        let pressure =
+            i2csensors::Barometer::pressure_kpa(&mut *bmp280.lock().unwrap())? as f64;
 
-        if let Err(e) = db.insert_global_measurement(now, temperature) {
+        if let Err(e) = db.insert_global_measurement(now, temperature, pressure) {
             warn!(log, "failed to insert plant measurement: {}", e);
         }
     }
