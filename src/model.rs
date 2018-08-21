@@ -1,3 +1,5 @@
+use std::time;
+
 use ads1x15;
 use cron;
 use uuid;
@@ -10,6 +12,7 @@ pub struct ModuleConfig {
     pub moisture_channel: ads1x15::Channel,
     pub pump_enabled: bool,
     pub pump_schedule: Option<cron::Schedule>,
+    pub pump_duration: Option<time::Duration>,
     pub pump_channel: u64,
     pub min_moisture: f64,
     pub max_moisture: f64,

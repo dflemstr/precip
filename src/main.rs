@@ -101,12 +101,17 @@ fn main() -> Result<(), failure::Error> {
             db.clone(),
         )) as Box<futures::Future<Item = _, Error = _> + Send>
     });
+    let run_pump_futures = loaded_modules.iter().map(|module| {
+        Box::new(run_pump_job(log.clone(), module.clone(), db.clone()))
+            as Box<futures::Future<Item = _, Error = _> + Send>
+    });
 
     let mut runtime = tokio::runtime::Runtime::new().unwrap();
     runtime
         .block_on(futures::future::select_all(
             vec![sample_global_future, update_indices_future]
                 .into_iter()
+                .chain(run_pump_futures)
                 .chain(sample_futures),
         )).map(|r| r.0)
         .map_err(|r| r.0)
@@ -217,7 +222,6 @@ where
     <D as i2cdev::core::I2CDevice>::Error: Send + Sync + 'static,
 {
     let mut last_report = time::Instant::now();
-    let pump = sync::Arc::new(pumps::Pump::new(log.clone(), module.pump_channel)?);
 
     #[async]
     for _ in util::every(
@@ -229,64 +233,18 @@ where
 
         let moisture_voltage =
             await!(sampler.sample(module.moisture_i2c_address, module.moisture_channel))? as f64;
-        let (moisture_min_voltage, moisture_max_voltage) =
-            db.fetch_module_moisture_voltage_range(module.uuid)?;
-
-        let moisture = compute_moisture(
-            &*module,
-            moisture_voltage,
-            moisture_min_voltage,
-            moisture_max_voltage,
-        );
 
         if let Err(e) = db.insert_plant_measurement(now, module.uuid, moisture_voltage) {
             warn!(log, "failed to insert plant measurement: {}", e);
         }
 
-        if module.pump_enabled {
-            if pump.running()? {
-                if moisture > module.max_moisture {
-                    info!(
-                        log,
-                        "Turning off pump name={:?} channel={} uuid={}",
-                        module.name,
-                        module.pump_channel,
-                        module.uuid
-                    );
-                    pump.set_running(false)?;
-                    db.insert_pump_measurement(now, module.uuid, false)?;
-                }
-            } else {
-                if moisture < module.min_moisture {
-                    info!(
-                        log,
-                        "Turning on pump name={:?} channel={} uuid={}",
-                        module.name,
-                        module.pump_channel,
-                        module.uuid
-                    );
-                    pump.set_running(true)?;
-                    db.insert_pump_measurement(now, module.uuid, true)?;
-                }
-            }
-        } else {
-            if pump.running()? {
-                info!(
-                    log,
-                    "Cleaning up turned-on pump name={:?} channel={} uuid={}",
-                    module.name,
-                    module.pump_channel,
-                    module.uuid
-                );
-                pump.set_running(false)?;
-                db.insert_pump_measurement(now, module.uuid, false)?;
-            }
-        }
-
         if last_report.elapsed() > time::Duration::from_secs(60) {
             info!(
                 log,
-                "sensor reading name={:?} moisture={} uuid={}", module.name, moisture, module.uuid
+                "sensor reading name={:?} moisture={}V uuid={}",
+                module.name,
+                moisture_voltage,
+                module.uuid
             );
             last_report = time::Instant::now();
         }
@@ -295,20 +253,36 @@ where
     Ok(())
 }
 
-fn compute_moisture(
-    module: &model::ModuleConfig,
-    moisture_voltage: f64,
-    moisture_min_voltage: Option<f64>,
-    moisture_max_voltage: Option<f64>,
-) -> f64 {
-    let moisture_voltage_wet = moisture_min_voltage
-        .map(|v| v.min(module.moisture_voltage_wet))
-        .unwrap_or(module.moisture_voltage_wet);
-    let moisture_voltage_dry = moisture_max_voltage
-        .map(|v| v.max(module.moisture_voltage_dry))
-        .unwrap_or(module.moisture_voltage_dry);
-    let moisture_voltage_range = moisture_voltage_dry - moisture_voltage_wet;
-    1.0 - (moisture_voltage - moisture_voltage_wet) / moisture_voltage_range
+#[async]
+fn run_pump_job(
+    log: slog::Logger,
+    module: sync::Arc<model::ModuleConfig>,
+    db: sync::Arc<db::Db<'static>>,
+) -> Result<(), failure::Error> {
+    if module.pump_enabled {
+        let pump = pumps::Pump::new(log.clone(), module.pump_channel)?;
+        while let Some(now) = module
+            .pump_schedule
+            .as_ref()
+            .and_then(|schedule| schedule.upcoming(chrono::Utc).next())
+        {
+            await!(tokio::timer::Delay::new(
+                time::Instant::now() + (chrono::Utc::now() - now).to_std()?
+            ));
+
+            pump.set_running(true)?;
+            db.insert_pump_measurement(chrono::Utc::now(), module.uuid, true)?;
+
+            await!(tokio::timer::Delay::new(
+                time::Instant::now() + module.pump_duration.unwrap_or(time::Duration::new(0, 0))
+            ));
+
+            pump.set_running(false)?;
+            db.insert_pump_measurement(chrono::Utc::now(), module.uuid, false)?;
+        }
+    }
+
+    Ok(())
 }
 
 fn load_modules(
@@ -336,7 +310,16 @@ fn load_modules(
                     x => bail!("No such moisture channel: {}", x),
                 },
                 pump_enabled: plant.pump.enabled,
-                pump_schedule: plant.pump.fixed_schedule.as_ref().and_then(|s| cron::Schedule::from_str(s).ok()),
+                pump_schedule: plant
+                    .pump
+                    .schedule
+                    .as_ref()
+                    .and_then(|schedule| cron::Schedule::from_str(&schedule.start).ok()),
+                pump_duration: plant
+                    .pump
+                    .schedule
+                    .as_ref()
+                    .map(|schedule| time::Duration::from_secs(schedule.duration_seconds)),
                 pump_channel: plant.pump.channel as u64,
             }))
         }).collect()

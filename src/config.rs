@@ -55,7 +55,13 @@ pub struct MoistureChannel {
 pub struct Pump {
     pub channel: u8,
     pub enabled: bool,
-    pub fixed_schedule: Option<String>,
+    pub schedule: Option<PumpSchedule>,
+}
+
+#[derive(Clone, Debug, Deserialize)]
+pub struct PumpSchedule {
+    pub start: String,
+    pub duration_seconds: u64,
 }
 
 impl Config {
