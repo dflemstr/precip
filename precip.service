@@ -6,6 +6,8 @@ Environment="RUST_BACKTRACE=1"
 Environment="RUST_LOG=precip=info"
 Environment="AWS_SHARED_CREDENTIALS_FILE=/etc/precip/aws-credentials"
 ExecStart=/usr/bin/precip -s
+Restart=on-failure
+RestartSec=5s
 
 [Install]
 WantedBy=multi-user.target
