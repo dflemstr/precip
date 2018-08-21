@@ -130,7 +130,7 @@ impl<'a> Db<'a> {
         Ok(results
             .results
             .into_iter()
-            .find(|r| r.statement_id == 0)
+            .find(|r| r.statement_id == Some(0))
             .and_then(|result| result.series.into_iter().find(|s| s.name == "plant"))
             .map_or_else(
                 || (None, None),
@@ -216,7 +216,7 @@ struct QueryResults {
 
 #[derive(Clone, Debug, Deserialize)]
 struct QueryResult {
-    statement_id: u32,
+    statement_id: Option<u32>,
     #[serde(default)]
     series: Vec<QuerySeries>,
 }
