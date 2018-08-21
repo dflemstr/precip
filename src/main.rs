@@ -184,8 +184,7 @@ where
         let now = chrono::Utc::now();
         let temperature =
             i2csensors::Thermometer::temperature_celsius(&mut *bmp280.lock().unwrap())? as f64;
-        let pressure =
-            i2csensors::Barometer::pressure_kpa(&mut *bmp280.lock().unwrap())? as f64;
+        let pressure = i2csensors::Barometer::pressure_kpa(&mut *bmp280.lock().unwrap())? as f64;
 
         if let Err(e) = db.insert_global_measurement(now, temperature, pressure) {
             warn!(log, "failed to insert plant measurement: {}", e);
@@ -272,6 +271,10 @@ fn run_pump_job(
                 time::Instant::now() + (now - chrono::Utc::now()).to_std()?
             ));
 
+            info!(
+                log,
+                "running turning pump on name={:?} uuid={}", module.name, module.uuid
+            );
             pump.set_running(true)?;
             db.insert_pump_measurement(chrono::Utc::now(), module.uuid, true)?;
 
@@ -279,6 +282,10 @@ fn run_pump_job(
                 time::Instant::now() + module.pump_duration.unwrap_or(time::Duration::new(0, 0))
             ));
 
+            info!(
+                log,
+                "running turning pump off name={:?} uuid={}", module.name, module.uuid
+            );
             pump.set_running(false)?;
             db.insert_pump_measurement(chrono::Utc::now(), module.uuid, false)?;
         }

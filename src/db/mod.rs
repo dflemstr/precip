@@ -45,10 +45,7 @@ impl<'a> Db<'a> {
             "temperature",
             influent::measurement::Value::Float(temperature),
         );
-        measurement.add_field(
-            "pressure",
-            influent::measurement::Value::Float(pressure),
-        );
+        measurement.add_field("pressure", influent::measurement::Value::Float(pressure));
 
         self.client
             .write_one(measurement, Some(influent::client::Precision::Nanoseconds))
