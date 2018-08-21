@@ -1,7 +1,5 @@
 [Unit]
 Description=Precip irrigation controller service
-Wants=network-online.target
-After=network-online.target
 
 [Service]
 Environment="RUST_BACKTRACE=1"
