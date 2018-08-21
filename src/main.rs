@@ -265,10 +265,10 @@ fn run_pump_job(
         while let Some(now) = module
             .pump_schedule
             .as_ref()
-            .and_then(|schedule| schedule.upcoming(chrono::Utc).next())
+            .and_then(|schedule| schedule.upcoming(chrono::Local).next())
         {
             await!(tokio::timer::Delay::new(
-                time::Instant::now() + (now - chrono::Utc::now()).to_std()?
+                time::Instant::now() + (now - chrono::Local::now()).to_std()?
             ));
 
             info!(
