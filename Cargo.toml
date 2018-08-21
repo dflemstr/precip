@@ -31,6 +31,7 @@ structopt = "0.2.10"
 sysfs_gpio = "0.5.3"
 tokio = "0.1.7"
 uuid = { version = "0.6.5", features = ["serde"] }
+cron = "0.6.0"
 
 [patch.crates-io]
 i2csensors = { git = "https://github.com/dflemstr/i2cdev-sensors.git", branch = "upgrade-i2cdev" }

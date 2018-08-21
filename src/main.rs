@@ -3,6 +3,7 @@
 extern crate ads1x15;
 extern crate chrono;
 extern crate config as config_rs;
+extern crate cron;
 #[macro_use]
 extern crate failure;
 extern crate futures_await as futures;
@@ -313,6 +314,8 @@ fn compute_moisture(
 fn load_modules(
     plant: collections::HashMap<uuid::Uuid, config::Plant>,
 ) -> Result<Vec<sync::Arc<model::ModuleConfig>>, failure::Error> {
+    use std::str::FromStr;
+
     plant
         .into_iter()
         .map(|(uuid, plant)| {
@@ -333,6 +336,7 @@ fn load_modules(
                     x => bail!("No such moisture channel: {}", x),
                 },
                 pump_enabled: plant.pump.enabled,
+                pump_schedule: plant.pump.fixed_schedule.as_ref().and_then(|s| cron::Schedule::from_str(s).ok()),
                 pump_channel: plant.pump.channel as u64,
             }))
         }).collect()

@@ -55,6 +55,7 @@ pub struct MoistureChannel {
 pub struct Pump {
     pub channel: u8,
     pub enabled: bool,
+    pub fixed_schedule: Option<String>,
 }
 
 impl Config {
