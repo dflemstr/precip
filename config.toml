@@ -7,85 +7,92 @@ password = "hunter2"
 database = "precip"
 
 [plant.a9ccd14f-eedf-48a7-bd6c-9fefab0ddeea]
-name = "Basil"
+name = "Capsicum Chili 'Apache'"
 description = """
-*basilikum*
+*Capsicum chili*
 
-Half shade, lots of water, normal fertilization, **edible**.
+Chili med 5 cm röda, hängande frukter. Medelstark smak. Bra sort för kruka, låg och kompakt. Trivs i soligt läge på
+varm plats, i väldränerad, näringsrik jord. Vattnas jämnt.
 """
 moisture = { channel = "48-0", voltage_wet = 1.5, voltage_dry = 2.1, min = 0.2, max = 0.6 }
-pump = { channel = 18, enabled = true, schedule = { start = "0 0,20,40 6-20 * * *", duration_seconds = 1 } }
+pump = { channel = 18, enabled = true, schedule = { start = "0 0,15,30,45 6-20 * * * *", duration_seconds = 1 } }
 
 [plant.bb789398-6001-4a00-97fc-5dfeab297509]
-name = "French Tarragon"
+name = "Narrfikus"
 description = """
-*artemisia dracunculus*
+*Clusia rosea*
 
-Sunny/half shade, not too much water, normal fertilization, **edible**.
+Tålig och otroligt lättskött växt med stora, blanka läderartade blad som trivs nästan överallt. Mycket bra luftrenare.
+Trivs i både ljusa och skuggiga lägen i lätt fuktig jord.
 """
 moisture = { channel = "48-1", voltage_wet = 1.5, voltage_dry = 2.1, min = 0.2, max = 0.6 }
-pump = { channel = 23, enabled = true, schedule = { start = "1 0,20,40 6-20 * * *", duration_seconds = 1 } }
+pump = { channel = 23, enabled = true, schedule = { start = "1 0,20,40 6-20 * * * *", duration_seconds = 1 } }
 
 [plant.641e4ff8-5a2b-4450-8ada-7a52ca1f9b0f]
-name = "Chives"
+name = "Slideranka/Plättar i luften"
 description = """
-*allium schoenoprasum*
+*Muehlenbeckia axillaris*
 
-Sunny/half shade, normal amount of water, normal fertilization, **edible**.
+Lättskött, låg växt med ett luftigt, nätt utseende med skira blad. Trivs i ljust-halvskuggigt läge, undvik direkt sol.
+Lika fin inne som ute sommartid. Håll jorden lätt fuktig.
 """
 moisture = { channel = "48-2", voltage_wet = 1.5, voltage_dry = 2.1, min = 0.2, max = 0.6 }
-pump = { channel = 24, enabled = true, schedule = { start = "2 0,20,40 6-20 * * *", duration_seconds = 1 } }
+pump = { channel = 24, enabled = true, schedule = { start = "2 0,20,40 6-20 * * * *", duration_seconds = 1 } }
 
 [plant.36dd6ec7-2538-426c-8d1a-8f6542458f5a]
-name = "Moroccan Mint"
+name = "Rosmarin"
 description = """
-*mentha x villosa*
+*Rosmarinus officinalis*
 
-Sunny/half shade, normal amount of water, normal fertilization, **edible**.
+Härlig krydda med aromatiska blad. Flerårig, övervintras ljust och frostfritt. Trivs i soligt läge i näringsrik,
+väldränerad jord på varm plats.
 """
 moisture = { channel = "48-3", voltage_wet = 1.5, voltage_dry = 2.1, min = 0.2, max = 0.6 }
-pump = { channel = 25, enabled = true, schedule = { start = "3 0,20,40 6-20 * * *", duration_seconds = 1 } }
+pump = { channel = 25, enabled = true, schedule = { start = "3 0,20,40 6-20 * * * *", duration_seconds = 1 } }
 
 ########################################################################################################################
 ########################################################################################################################
 ########################################################################################################################
 
 [plant.3767a85a-0016-411e-883c-6c50b25efe54]
-name = "Rosemary"
+name = "Fjädersparris"
 description = """
-*rosmarinus officinalis*
+*Asparagus setaceus*
 
-Sunny, not too much water, normal fertilization, **edible**.
+Otroligt elegant växt med slöjliknande, ormbunkslika blad. Kan blomma med små stjärnlika blommor. Trivs i
+ljust-halvskuggigt läge. Låt jorden nästan torka upp mellan vattningarna.
 """
 moisture = { channel = "49-0", voltage_wet = 1.5, voltage_dry = 2.1, min = 0.2, max = 0.6 }
-pump = { channel = 12, enabled = true, schedule = { start = "4 0,20,40 6-20 * * *", duration_seconds = 1 } }
+pump = { channel = 12, enabled = true, schedule = { start = "4 0 20 * * Wed,Sat * *", duration_seconds = 30 } }
 
 [plant.3c11b762-277c-4458-85bc-00418b333fb3]
-name = "Lemon balm"
+name = "Krysantemum"
 description = """
-*melissa officinalis*
+*Chrysanthemum morifolium*
 
-Sunny/half shade, normal amount of water, normal fertilization, **edible**.
+Blomrika, klotrunda växter. Trivs i sol - halvskugga. Vattnas då jorden nästan torkat upp. Tål lätt frost på hösten.
 """
 moisture = { channel = "49-1", voltage_wet = 1.5, voltage_dry = 2.1, min = 0.2, max = 0.6 }
-pump = { channel = 16, enabled = true, schedule = { start = "5 0,20,40 6-20 * * *", duration_seconds = 1 } }
+pump = { channel = 16, enabled = true, schedule = { start = "5 0 20 * * Wed,Sat *", duration_seconds = 30 } }
 
 [plant.e62703ea-b955-47e1-80ea-d516a49bbdd1]
-name = "Coriander"
+name = "Citronfikus"
 description = """
-*coriandrum satvium*
+*Ficus microcarpa*
 
-Sunny/half shade, normal amount of water, normal fertilization, **edible**.
+En vacker växt med blanka, små gröna blad. Lättskött alternativ till en bonsai. Trivs i ljust till halvskuggigt läge.
+Vattnas då jorden nästan torkat upp, ungefär en gång i veckan.
 """
 moisture = { channel = "49-2", voltage_wet = 1.5, voltage_dry = 2.1, min = 0.2, max = 0.6 }
-pump = { channel = 20, enabled = true, schedule = { start = "6 0,20,40 6-20 * * *", duration_seconds = 1 } }
+pump = { channel = 20, enabled = true, schedule = { start = "6 0 20 * * Sat *", duration_seconds = 45 } }
 
 [plant.25406e3f-fa8d-4d1e-9d13-c2a5c66de359]
-name = "Chili 'Tapas'"
+name = "Adiantum capillus-veneris"
 description = """
-*capiscum annuum*
+*Adiantum capillus-veneris*
 
-Sunny, should have long water/dry cycles, normal fertilization, **edible**.
+Mycket gracil och elegant grönväxt. Trivs i halvskugga-skugga och kan med fördel placeras en bit in i rummet.
+Vattnas då jorden är lätt fuktig, bör ej torka ut.
 """
 moisture = { channel = "49-3", voltage_wet = 1.5, voltage_dry = 2.1, min = 0.2, max = 0.6 }
 pump = { channel = 21, enabled = true, schedule = { start = "7 0,20,40 6-20 * * *", duration_seconds = 1 } }
