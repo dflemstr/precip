@@ -64,7 +64,7 @@ impl<'a> Db<'a> {
 
         let mut measurement = influent::measurement::Measurement::new("plant");
         measurement.set_timestamp(to_influx_timestamp(now));
-        measurement.add_tag("uuid", uuid.hyphenated().to_string());
+        measurement.add_tag("uuid", uuid.to_hyphenated().to_string());
         measurement.add_field("moisture", influent::measurement::Value::Float(moisture));
 
         self.client
@@ -84,7 +84,7 @@ impl<'a> Db<'a> {
 
         let mut measurement = influent::measurement::Measurement::new("pump");
         measurement.set_timestamp(to_influx_timestamp(now));
-        measurement.add_tag("uuid", uuid.hyphenated().to_string());
+        measurement.add_tag("uuid", uuid.to_hyphenated().to_string());
         measurement.add_field("running", influent::measurement::Value::Boolean(running));
 
         self.client
