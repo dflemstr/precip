@@ -323,7 +323,7 @@ fn load_modules(
                     .pump
                     .schedule
                     .as_ref()
-                    .and_then(|schedule| cron::Schedule::from_str(&schedule.start).ok()),
+                    .map(|schedule| cron::Schedule::from_str(&schedule.start).unwrap()),
                 pump_duration: plant
                     .pump
                     .schedule
