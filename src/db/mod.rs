@@ -105,7 +105,8 @@ impl<'a> Db<'a> {
                  into plant_index from plant where time > now() - 1w group by uuid"
                     .to_owned(),
                 Some(influent::client::Precision::Nanoseconds),
-            ).map_err(from_influent_error)?;
+            )
+            .map_err(from_influent_error)?;
 
         Ok(())
     }

@@ -72,7 +72,8 @@ fn main() -> Result<(), failure::Error> {
         .map(|addr| {
             let i2c_dev = i2cdev::linux::LinuxI2CDevice::new("/dev/i2c-1", addr)?;
             Ok((addr, sync::Arc::new(ads1x15::Ads1x15::new_ads1115(i2c_dev))))
-        }).collect::<Result<collections::HashMap<_, _>, failure::Error>>()?;
+        })
+        .collect::<Result<collections::HashMap<_, _>, failure::Error>>()?;
 
     let bmp280_i2c_dev = i2cdev_bmp280::get_linux_bmp280_i2c_device().unwrap();
     let bmp280 = sync::Arc::new(sync::Mutex::new(i2cdev_bmp280::BMP280::new(
@@ -113,7 +114,8 @@ fn main() -> Result<(), failure::Error> {
                 .into_iter()
                 .chain(run_pump_futures)
                 .chain(sample_futures),
-        )).map(|r| r.0)
+        ))
+        .map(|r| r.0)
         .map_err(|r| r.0)
 }
 
@@ -159,7 +161,8 @@ fn init_log(options: &options::Options) -> Result<slog::Logger, failure::Error> 
 
     let drain = slog_async::Async::new(slog_envlogger::new(
         slog::Duplicate::new(term_drain, journald_drain).ignore_res(),
-    )).build()
+    ))
+    .build()
     .fuse();
 
     Ok(slog::Logger::root(drain, o!()))
@@ -319,11 +322,11 @@ fn load_modules(
                     x => bail!("No such moisture channel: {}", x),
                 },
                 pump_enabled: plant.pump.enabled,
-                pump_schedule: plant
-                    .pump
-                    .schedule
-                    .as_ref()
-                    .map(|schedule| cron::Schedule::from_str(&schedule.start).unwrap()),
+                pump_schedule: plant.pump.schedule.as_ref().map(|schedule| {
+                    cron::Schedule::from_str(&schedule.start)
+                        .map_err(|e| format_err!("failed to parse {}: {}", schedule.start, e))
+                        .unwrap()
+                }),
                 pump_duration: plant
                     .pump
                     .schedule
@@ -331,5 +334,6 @@ fn load_modules(
                     .map(|schedule| time::Duration::from_secs(schedule.duration_seconds)),
                 pump_channel: plant.pump.channel as u64,
             }))
-        }).collect()
+        })
+        .collect()
 }
