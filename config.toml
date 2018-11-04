@@ -15,7 +15,7 @@ Chili med 5 cm röda, hängande frukter. Medelstark smak. Bra sort för kruka, l
 varm plats, i väldränerad, näringsrik jord. Vattnas jämnt.
 """
 moisture = { channel = "48-0", voltage_wet = 1.5, voltage_dry = 2.1, min = 0.2, max = 0.6 }
-pump = { channel = 18, enabled = true, schedule = { start = "0 0,15,30,45 6-20 * * * *", duration_seconds = 1 } }
+pump = { channel = 18, enabled = true, schedule = { start = "0 0 6-20 * * * *", duration_seconds = 1 } }
 
 [plant.bb789398-6001-4a00-97fc-5dfeab297509]
 name = "Narrfikus"
@@ -29,12 +29,12 @@ moisture = { channel = "48-1", voltage_wet = 1.5, voltage_dry = 2.1, min = 0.2, 
 pump = { channel = 23, enabled = true, schedule = { start = "1 0 6-20 * * * *", duration_seconds = 1 } }
 
 [plant.641e4ff8-5a2b-4450-8ada-7a52ca1f9b0f]
-name = "Slideranka/Plättar i luften"
+name = "Adiantum capillus-veneris"
 description = """
-*Muehlenbeckia axillaris*
+*Adiantum capillus-veneris*
 
-Lättskött, låg växt med ett luftigt, nätt utseende med skira blad. Trivs i ljust-halvskuggigt läge, undvik direkt sol.
-Lika fin inne som ute sommartid. Håll jorden lätt fuktig.
+Mycket gracil och elegant grönväxt. Trivs i halvskugga-skugga och kan med fördel placeras en bit in i rummet.
+Vattnas då jorden är lätt fuktig, bör ej torka ut.
 """
 moisture = { channel = "48-2", voltage_wet = 1.5, voltage_dry = 2.1, min = 0.2, max = 0.6 }
 pump = { channel = 24, enabled = true, schedule = { start = "2 0 6-20 * * * *", duration_seconds = 1 } }
@@ -66,14 +66,11 @@ moisture = { channel = "49-0", voltage_wet = 1.5, voltage_dry = 2.1, min = 0.2, 
 pump = { channel = 12, enabled = true, schedule = { start = "4 0 20 * * Wed,Sat *", duration_seconds = 30 } }
 
 [plant.3c11b762-277c-4458-85bc-00418b333fb3]
-name = "Krysantemum"
+name = "Okänd chili"
 description = """
-*Chrysanthemum morifolium*
-
-Blomrika, klotrunda växter. Trivs i sol - halvskugga. Vattnas då jorden nästan torkat upp. Tål lätt frost på hösten.
 """
 moisture = { channel = "49-1", voltage_wet = 1.5, voltage_dry = 2.1, min = 0.2, max = 0.6 }
-pump = { channel = 16, enabled = true, schedule = { start = "5 0 20 * * Wed,Sat *", duration_seconds = 30 } }
+pump = { channel = 16, enabled = true, schedule = { start = "0 0 6-20 * * * *", duration_seconds = 30 } }
 
 [plant.e62703ea-b955-47e1-80ea-d516a49bbdd1]
 name = "Citronfikus"
@@ -87,12 +84,10 @@ moisture = { channel = "49-2", voltage_wet = 1.5, voltage_dry = 2.1, min = 0.2, 
 pump = { channel = 20, enabled = true, schedule = { start = "6 0 20 * * Sat *", duration_seconds = 45 } }
 
 [plant.25406e3f-fa8d-4d1e-9d13-c2a5c66de359]
-name = "Adiantum capillus-veneris"
+name = "Dvärgcitrusträd"
 description = """
-*Adiantum capillus-veneris*
-
-Mycket gracil och elegant grönväxt. Trivs i halvskugga-skugga och kan med fördel placeras en bit in i rummet.
-Vattnas då jorden är lätt fuktig, bör ej torka ut.
+Härlig citrus på stam med ovala, glansiga blad och vita väldoftande blommor. Ätliga, syrliga frukter. Trivs i ljust
+läge, även i direkt sol, i väldränerad jord med lågt pH.
 """
 moisture = { channel = "49-3", voltage_wet = 1.5, voltage_dry = 2.1, min = 0.2, max = 0.6 }
-pump = { channel = 21, enabled = true, schedule = { start = "7 0 6-20 * * * *", duration_seconds = 1 } }
+pump = { channel = 21, enabled = true, schedule = { start = "7 0 20 * * Sat *", duration_seconds = 1 } }
