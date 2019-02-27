@@ -7,46 +7,26 @@ password = "hunter2"
 database = "precip"
 
 [plant.a9ccd14f-eedf-48a7-bd6c-9fefab0ddeea]
-name = "Capsicum Chili 'Apache'"
-description = """
-*Capsicum chili*
-
-Chili med 5 cm röda, hängande frukter. Medelstark smak. Bra sort för kruka, låg och kompakt. Trivs i soligt läge på
-varm plats, i väldränerad, näringsrik jord. Vattnas jämnt.
-"""
+name = "Christmas flower"
+description = ""
 moisture = { channel = "48-0", voltage_wet = 1.5, voltage_dry = 2.1, min = 0.2, max = 0.6 }
 pump = { channel = 18, enabled = true, schedule = { start = "0 0 6-20 * * * *", duration_seconds = 1 } }
 
 [plant.bb789398-6001-4a00-97fc-5dfeab297509]
-name = "Narrfikus"
-description = """
-*Clusia rosea*
-
-Tålig och otroligt lättskött växt med stora, blanka läderartade blad som trivs nästan överallt. Mycket bra luftrenare.
-Trivs i både ljusa och skuggiga lägen i lätt fuktig jord.
-"""
+name = "Magnolia 1"
+description = ""
 moisture = { channel = "48-1", voltage_wet = 1.5, voltage_dry = 2.1, min = 0.2, max = 0.6 }
 pump = { channel = 23, enabled = true, schedule = { start = "1 0 6-20 * * * *", duration_seconds = 1 } }
 
 [plant.641e4ff8-5a2b-4450-8ada-7a52ca1f9b0f]
-name = "Adiantum capillus-veneris"
-description = """
-*Adiantum capillus-veneris*
-
-Mycket gracil och elegant grönväxt. Trivs i halvskugga-skugga och kan med fördel placeras en bit in i rummet.
-Vattnas då jorden är lätt fuktig, bör ej torka ut.
-"""
+name = "Magnolia 2"
+description = ""
 moisture = { channel = "48-2", voltage_wet = 1.5, voltage_dry = 2.1, min = 0.2, max = 0.6 }
 pump = { channel = 24, enabled = true, schedule = { start = "2 0 6-20 * * * *", duration_seconds = 1 } }
 
 [plant.36dd6ec7-2538-426c-8d1a-8f6542458f5a]
-name = "Rosmarin"
-description = """
-*Rosmarinus officinalis*
-
-Härlig krydda med aromatiska blad. Flerårig, övervintras ljust och frostfritt. Trivs i soligt läge i näringsrik,
-väldränerad jord på varm plats.
-"""
+name = "Magnolia 3"
+description = ""
 moisture = { channel = "48-3", voltage_wet = 1.5, voltage_dry = 2.1, min = 0.2, max = 0.6 }
 pump = { channel = 25, enabled = true, schedule = { start = "3 0 6-20 * * * *", duration_seconds = 1 } }
 
@@ -55,15 +35,10 @@ pump = { channel = 25, enabled = true, schedule = { start = "3 0 6-20 * * * *", 
 ########################################################################################################################
 
 [plant.3767a85a-0016-411e-883c-6c50b25efe54]
-name = "Fjädersparris"
-description = """
-*Asparagus setaceus*
-
-Otroligt elegant växt med slöjliknande, ormbunkslika blad. Kan blomma med små stjärnlika blommor. Trivs i
-ljust-halvskuggigt läge. Låt jorden nästan torka upp mellan vattningarna.
-"""
+name = "Magnolia 4"
+description = ""
 moisture = { channel = "49-0", voltage_wet = 1.5, voltage_dry = 2.1, min = 0.2, max = 0.6 }
-pump = { channel = 12, enabled = true, schedule = { start = "4 0 20 * * Wed,Sat *", duration_seconds = 30 } }
+pump = { channel = 12, enabled = true, schedule = { start = "4 0 6-20 * * * *", duration_seconds = 1 } }
 
 [plant.3c11b762-277c-4458-85bc-00418b333fb3]
 name = "Okänd chili"
@@ -84,10 +59,7 @@ moisture = { channel = "49-2", voltage_wet = 1.5, voltage_dry = 2.1, min = 0.2, 
 pump = { channel = 20, enabled = true, schedule = { start = "6 0 20 * * Sat *", duration_seconds = 45 } }
 
 [plant.25406e3f-fa8d-4d1e-9d13-c2a5c66de359]
-name = "Dvärgcitrusträd"
-description = """
-Härlig citrus på stam med ovala, glansiga blad och vita väldoftande blommor. Ätliga, syrliga frukter. Trivs i ljust
-läge, även i direkt sol, i väldränerad jord med lågt pH.
-"""
+name = "Elefantöra"
+description = ""
 moisture = { channel = "49-3", voltage_wet = 1.5, voltage_dry = 2.1, min = 0.2, max = 0.6 }
-pump = { channel = 21, enabled = true, schedule = { start = "7 0 20 * * Sat *", duration_seconds = 45 } }
+pump = { channel = 21, enabled = true, schedule = { start = "7 0 6-20 * * * *", duration_seconds = 1 } }
